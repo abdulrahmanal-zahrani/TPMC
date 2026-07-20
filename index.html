@@ -3,741 +3,660 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TPMC Treasury — LC &amp; LG Commission Calculator</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<title>TPMC Treasury — LC & LG Commission Management System</title>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Libraries for PDF and Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <style>
-  :root{
-    --ink:#0F1B2D;
-    --navy:#0B4C8C;
-    --navy-deep:#0A2540;
-    --parchment:#F5F1E7;
-    --paper:#FFFFFF;
-    --seal:#A97C3F;
-    --seal-soft:#F0E4CC;
-    --line:#DDD5C2;
-    --green:#4F7A34;
-    --green-soft:#E9F0E1;
-    --rust:#AA4430;
-    --rust-soft:#F5E5DF;
-    --muted:#6B6455;
-    --radius:3px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--parchment);
-    color:var(--ink);
-    font-family:'Inter',system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3,.serif{font-family:'Lora',Georgia,serif;}
-  .mono{font-family:'IBM Plex Mono',monospace;}
-
-  /* ===== Header / stamp ===== */
-  header.top{
-    background:var(--navy-deep);
-    color:#F2ECDD;
-    padding:34px 28px 30px;
-    position:relative;
-    overflow:hidden;
-    border-bottom:3px solid var(--seal);
-  }
-  header.top::before{
-    content:"";
-    position:absolute; inset:0;
-    background:
-      repeating-linear-gradient(115deg, rgba(255,255,255,.02) 0 2px, transparent 2px 40px);
-    pointer-events:none;
-  }
-  .top-inner{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;position:relative;}
-  .eyebrow{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    letter-spacing:.14em;
-    text-transform:uppercase;
-    color:var(--seal-soft);
-    opacity:.85;
-    margin-bottom:10px;
-  }
-  header.top h1{font-size:28px;font-weight:600;margin:0 0 6px;letter-spacing:.01em;}
-  header.top p{margin:0;color:#C9C2AE;font-size:13.5px;max-width:560px;line-height:1.5;}
-
-  .seal-badge{
-    flex-shrink:0;
-    width:104px;height:104px;
-    border:1.5px solid var(--seal);
-    border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    text-align:center;
-    position:relative;
-    color:var(--seal-soft);
-  }
-  .seal-badge::before{
-    content:"";
-    position:absolute; inset:6px;
-    border:1px dashed rgba(169,124,63,.6);
-    border-radius:50%;
-  }
-  .seal-badge span{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:9px;
-    line-height:1.5;
-    letter-spacing:.06em;
-    padding:0 10px;
+  :root {
+    --ink: #0F1B2D; --navy: #0B4C8C; --navy-deep: #0A2540;
+    --bg-main: #F5F1E7; --paper: #FFFFFF; --seal: #A97C3F;
+    --line: #DDD5C2; --muted: #6B6455; --radius: 4px;
+    --green: #4F7A34; --green-soft: #E9F0E1; 
+    --rust: #AA4430; --rust-soft: #F5E5DF;
+    --yellow: #b8860b; --yellow-soft: #fcf4dd;
   }
 
-  /* ===== Layout ===== */
-  main{max-width:1180px;margin:0 auto;padding:26px 28px 70px;}
-
-  .disclaimer{
-    background:var(--seal-soft);
-    border:1px solid #D9C6A0;
-    border-radius:var(--radius);
-    padding:14px 18px;
-    font-size:12.5px;
-    line-height:1.6;
-    color:#4A3B1F;
-    margin-bottom:22px;
-  }
-  .disclaimer b{color:#3A2E14;}
-
-  nav.tabs{
-    display:flex;
-    gap:2px;
-    border-bottom:1px solid var(--line);
-    margin-bottom:24px;
-  }
-  nav.tabs button{
-    font-family:'Lora',serif;
-    font-size:14.5px;
-    font-weight:600;
-    background:none;
-    border:none;
-    padding:11px 18px;
-    cursor:pointer;
-    color:var(--muted);
-    border-bottom:2px solid transparent;
-    margin-bottom:-1px;
-  }
-  nav.tabs button.active{color:var(--navy-deep);border-bottom-color:var(--seal);}
-  nav.tabs button:hover{color:var(--navy-deep);}
-
-  .panel{display:none;}
-  .panel.active{display:block;}
-
-  .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:22px;align-items:start;}
-  @media (max-width:880px){.grid{grid-template-columns:1fr;}}
-
-  .card{
-    background:var(--paper);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:22px 24px 26px;
-  }
-  .card h2{
-    font-size:11.5px;
-    text-transform:uppercase;
-    letter-spacing:.12em;
-    color:var(--muted);
-    font-weight:600;
-    margin:0 0 16px;
-    padding-bottom:10px;
-    border-bottom:1px solid var(--line);
-    font-family:'IBM Plex Mono',monospace;
+  body.theme-dark {
+    --ink: #e2e8f0; --navy: #63b3ed; --navy-deep: #2c5282;
+    --bg-main: #1a202c; --paper: #2d3748; --seal: #ecc94b;
+    --line: #4a5568; --muted: #a0aec0;
   }
 
-  .field{margin-bottom:15px;}
-  .field label{
-    display:block;
-    font-size:12.5px;
-    font-weight:600;
-    color:var(--ink);
-    margin-bottom:5px;
-  }
-  .field label .hint{font-weight:400;color:var(--muted);font-size:11px;}
-  .field input, .field select{
-    width:100%;
-    padding:9px 10px;
-    border:1px solid #C9C0A8;
-    border-radius:var(--radius);
-    background:#FFFDF9;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:13.5px;
-    color:var(--ink);
-  }
-  .field input:focus, .field select:focus{
-    outline:2px solid var(--navy);
-    outline-offset:1px;
-    border-color:var(--navy);
-  }
-  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .field small.note{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.5;}
-
-  .seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:15px;}
-  .seg button{
-    padding:10px 8px;
-    border:1px solid #C9C0A8;
-    background:#FFFDF9;
-    border-radius:var(--radius);
-    font-family:'Inter',sans-serif;
-    font-size:12.5px;
-    font-weight:600;
-    color:var(--ink);
-    cursor:pointer;
-    text-align:center;
-  }
-  .seg button.active{background:var(--navy-deep);border-color:var(--navy-deep);color:#fff;}
-
-  .checkline{display:flex;align-items:flex-start;gap:8px;margin-bottom:15px;}
-  .checkline input{width:auto;margin-top:3px;}
-  .checkline label{font-size:12.5px;color:var(--ink);}
-
-  hr.div{border:none;border-top:1px solid var(--line);margin:18px 0;}
-  .subhead{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10.5px;
-    text-transform:uppercase;
-    letter-spacing:.1em;
-    color:var(--muted);
-    margin-bottom:12px;
+  body.theme-blue {
+    --bg-main: #ebf8ff; --paper: #ffffff; --navy-deep: #1a365d;
+    --line: #bee3f8;
   }
 
-  /* ===== Results ===== */
-  .results-total{
-    background:var(--navy-deep);
-    color:#F2ECDD;
-    border-radius:var(--radius);
-    padding:18px 20px;
-    margin-bottom:18px;
-  }
-  .results-total .lbl{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10.5px;
-    text-transform:uppercase;
-    letter-spacing:.1em;
-    color:var(--seal-soft);
-    opacity:.85;
-    margin-bottom:6px;
-  }
-  .results-total .amt{font-family:'Lora',serif;font-size:30px;font-weight:600;}
+  * { box-sizing: border-box; }
+  body { background: var(--bg-main); color: var(--ink); font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+  h1, h2, h3, h4 { font-family: 'Lora', serif; margin-top: 0; }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
 
-  .rline{
-    display:flex;justify-content:space-between;align-items:baseline;
-    padding:8px 0;
-    border-bottom:1px dotted var(--line);
-    font-size:13px;
-  }
-  .rline .k{color:var(--muted);}
-  .rline .v{font-family:'IBM Plex Mono',monospace;font-weight:600;}
-  .rline.total{border-bottom:none;border-top:1.5px solid var(--ink);margin-top:4px;padding-top:11px;font-size:14px;}
-  .rline.grand .v{font-size:16px;}
-  .rline.sub{padding-left:12px;font-size:12.5px;}
+  /* Header */
+  header.top-bar { background: var(--navy-deep); color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--seal); }
+  .header-left { display: flex; align-items: center; gap: 20px; }
+  .header-logo { font-size: 24px; font-weight: bold; color: var(--seal); border: 2px solid var(--seal); padding: 5px 10px; border-radius: 4px; }
+  .header-titles h1 { font-size: 18px; margin: 0; }
+  .header-titles h2 { font-size: 12px; margin: 0; color: #a0aec0; font-family: 'Inter', sans-serif; font-weight: normal; }
+  .header-right { text-align: right; font-size: 12px; display: flex; flex-direction: column; gap: 4px; }
+  .header-controls { display: flex; gap: 10px; margin-top: 5px; }
+  .header-controls button { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 4px 8px; border-radius: var(--radius); cursor: pointer; font-size: 11px; }
 
-  .variance-box{
-    margin-top:14px;
-    padding:12px 14px;
-    border-radius:var(--radius);
-    font-size:12.5px;
-    line-height:1.55;
-  }
-  .variance-box.ok{background:var(--green-soft);color:#2F4B1E;border:1px solid #CBDCB8;}
-  .variance-box.bad{background:var(--rust-soft);color:#6E2C1B;border:1px solid #E4C3B6;}
-  .variance-box.neutral{background:#F1EEE3;color:var(--muted);border:1px solid var(--line);}
+  /* Dashboard */
+  .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 20px 30px; background: var(--paper); border-bottom: 1px solid var(--line); }
+  .stat-card { padding: 15px; border-left: 3px solid var(--navy); background: var(--bg-main); border-radius: 0 var(--radius) var(--radius) 0; }
+  .stat-card .lbl { font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 5px; }
+  .stat-card .val { font-size: 20px; font-weight: 700; color: var(--ink); }
 
-  .clause-tag{
-    display:inline-block;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10px;
-    color:var(--navy);
-    background:#E9F0F8;
-    border:1px solid #C9DAEE;
-    padding:2px 6px;
-    border-radius:2px;
-    margin-left:6px;
-    vertical-align:middle;
+  /* Layout */
+  .container { display: grid; grid-template-columns: 1fr 350px; gap: 20px; padding: 20px 30px; max-width: 1400px; margin: 0 auto; }
+  
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+  .card h3 { font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 15px; font-family: 'IBM Plex Mono', monospace;}
+
+  .field-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+  .field { margin-bottom: 10px; }
+  .field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+  .field input, .field select { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-main); color: var(--ink); font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+  .field input:focus, .field select:focus { outline: 2px solid var(--navy); border-color: var(--navy); }
+
+  .btn-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .btn { padding: 10px 15px; border: none; border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+  .btn-primary { background: var(--navy); color: #fff; }
+  .btn-secondary { background: var(--bg-main); border: 1px solid var(--line); color: var(--ink); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Breakdown & Results */
+  .breakdown-box { background: var(--bg-main); border: 1px solid var(--line); padding: 15px; border-radius: var(--radius); font-family: 'IBM Plex Mono', monospace; font-size: 12px; margin-bottom: 15px; }
+  .breakdown-line { display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .breakdown-line.total { border-top: 1px dashed var(--line); padding-top: 5px; font-weight: bold; }
+
+  .status-box { display: flex; justify-content: space-between; padding: 12px; border-radius: var(--radius); margin-top: 15px; font-size: 13px; font-weight: bold;}
+  .status-ok { background: var(--green-soft); color: #2F4B1E; border: 1px solid #CBDCB8; }
+  .status-review { background: var(--yellow-soft); color: #6b4c00; border: 1px solid #e6c875; }
+  .status-bad { background: var(--rust-soft); color: #6E2C1B; border: 1px solid #E4C3B6; }
+
+  /* Register & History */
+  .register-card { max-height: 800px; overflow-y: auto; }
+  .register-search { width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid var(--line); border-radius: var(--radius); }
+  .register-item { padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 10px; cursor: pointer; background: var(--bg-main); }
+  .register-item:hover { border-color: var(--navy); }
+  .register-item .top { display: flex; justify-content: space-between; font-weight: 600; font-size: 12px; }
+  .register-item .mid { font-size: 11px; color: var(--muted); margin: 4px 0; }
+  .register-item .bot { display: flex; justify-content: space-between; font-size: 11px; font-family: 'IBM Plex Mono', monospace; }
+
+  .badge { padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: bold; }
+  .badge.completed { background: var(--green-soft); color: var(--green); }
+  .badge.pending { background: var(--yellow-soft); color: var(--yellow); }
+
+  /* Print Section */
+  #print-section { display: none; }
+
+  @media print {
+    body * { visibility: hidden; }
+    #print-section, #print-section * { visibility: visible; }
+    #print-section { display: block; position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: #fff; color: #000; font-family: 'Inter', sans-serif; }
+    .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
+    .print-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
+    .print-table th, .print-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    .print-table th { background-color: #f5f5f5; }
+    .signatures { display: grid; grid-template-columns: 1fr 1fr; margin-top: 50px; text-align: center; }
+    .signatures div { border-top: 1px solid #000; padding-top: 5px; width: 60%; margin: 0 auto; }
   }
 
-  /* ===== Reference table ===== */
-  .ref-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:24px 26px;margin-bottom:20px;}
-  .ref-card h3{font-size:16px;margin:0 0 4px;}
-  .ref-card .src{font-size:11.5px;color:var(--muted);margin-bottom:16px;font-family:'IBM Plex Mono',monospace;}
-  table.ref{width:100%;border-collapse:collapse;font-size:12.8px;}
-  table.ref th{
-    text-align:left;font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;
-    letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--ink);padding:6px 8px;
-  }
-  table.ref td{padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:top;}
-  table.ref tr:last-child td{border-bottom:none;}
-  table.ref td.rate{font-family:'IBM Plex Mono',monospace;white-space:nowrap;font-weight:600;color:var(--navy-deep);}
-  table.ref td.item{font-weight:600;}
-
-  footer.foot{max-width:1180px;margin:0 auto;padding:0 28px 50px;color:var(--muted);font-size:11.5px;line-height:1.6;}
+  /* Modals */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+  .modal { background: var(--paper); padding: 20px; border-radius: var(--radius); width: 400px; max-width: 90%; }
 </style>
 </head>
 <body>
 
-<header class="top">
-  <div class="top-inner">
-    <div>
-      <div class="eyebrow">TPMC Treasury — Internal Calculation Tool</div>
-      <h1>L/C &amp; L/G Commission Calculator</h1>
-      <p>Computes documentary credit and guarantee commissions against the SAMA Schedule of Bank Charges (Circular M/A/1/291, 19‑9‑1399H) and its amending circular on guarantee fees (Circular 4422/BC/60, 20‑3‑1403H).</p>
+<header class="top-bar">
+  <div class="header-left">
+    <div class="header-logo" id="display-logo">TPMC</div>
+    <div class="header-titles">
+      <h1>Treasury Department</h1>
+      <h2>LC & LG Commission Management System</h2>
     </div>
-    <div class="seal-badge"><span>SAMA · TARIFF<br>M/A/1/291 · 1399H<br>BC/60 · 1403H</span></div>
+  </div>
+  <div class="header-right">
+    <span id="display-user">User: Abdulrahman</span>
+    <span id="display-date">Date: 20-Jul-2026</span>
+    <span>Version: V2.0</span>
+    <div class="header-controls">
+      <button onclick="toggleTheme()">Theme</button>
+      <button onclick="openSettings()">Settings</button>
+      <button onclick="openAbout()">About</button>
+    </div>
   </div>
 </header>
 
-<main>
-  <div class="disclaimer">
-    <b>Basis of calculation.</b> Rates reflect the SAMA maximum tariff schedule for firms, companies &amp; individuals (banks may charge less, per the schedule's general note). This is an internal working tool — always reconcile results against the actual facility/LC agreement and the issuing bank's advice before booking or disputing a charge.
+<div class="dashboard">
+  <div class="stat-card">
+    <div class="lbl">Today's Reports</div>
+    <div class="val" id="dash-count">0</div>
   </div>
+  <div class="stat-card">
+    <div class="lbl">Total Commission</div>
+    <div class="val" id="dash-total">SAR 0.00</div>
+  </div>
+  <div class="stat-card">
+    <div class="lbl">Average Commission</div>
+    <div class="val" id="dash-avg">SAR 0.00</div>
+  </div>
+  <div class="stat-card">
+    <div class="lbl">Largest LC Amount</div>
+    <div class="val" id="dash-largest">SAR 0.00</div>
+  </div>
+</div>
 
-  <nav class="tabs">
-    <button class="tab-btn active" data-tab="lc">L/C Commission</button>
-    <button class="tab-btn" data-tab="lg">L/G Commission</button>
-    <button class="tab-btn" data-tab="ref">SAMA Tariff Reference</button>
-  </nav>
-
-  <!-- ============ LC PANEL ============ -->
-  <section class="panel active" id="panel-lc">
-    <div class="grid">
-      <div class="card">
-        <h2>L/C Setup</h2>
-
+<div class="container">
+  <div class="main-form">
+    <div class="card">
+      <h3>Company & Reference Information</h3>
+      <div class="field-grid">
+        <div class="field"><label>Applicant</label><input type="text" id="applicant" value="TPMC"></div>
+        <div class="field"><label>Beneficiary</label><input type="text" id="beneficiary"></div>
         <div class="field">
-          <label>Transaction Type</label>
-        </div>
-        <div class="seg" id="lcType">
-          <button class="active" data-v="new">New L/C</button>
-          <button data-v="increase">Increase in Value</button>
-          <button data-v="extension">Extension of Validity</button>
-          <button data-v="incext">Increase + Extension</button>
-          <button data-v="amend">Other Amendment</button>
-          <button data-v="advise">Advising Only</button>
-        </div>
-
-        <div id="lcAmountBlock">
-          <div class="field-row">
-            <div class="field">
-              <label id="lcAmountLbl">L/C Amount <span class="hint">SAR</span></label>
-              <input type="number" id="lcAmount" value="8000000" step="1000">
-            </div>
-            <div class="field">
-              <label>Validity <span class="hint">months</span></label>
-              <input type="number" id="lcMonths" value="12" step="1">
-            </div>
-          </div>
-          <small class="note" id="lcAmountNote">Item 1(a): ¼% on the first SR 400,000 for 3 months (or part), ⅛% on the excess for 3 months (or part), 1/16% per month (or part) beyond 3 months. <span class="clause-tag">Item 1(a)</span></small>
-        </div>
-
-        <div id="extensionBlock" style="display:none;">
-          <hr class="div">
-          <div class="subhead">Extension period</div>
-          <div class="field">
-            <label>Extension Length <span class="hint">months (part‑month counts as full month)</span></label>
-            <input type="number" id="extMonths" value="3" step="1">
-          </div>
-          <small class="note">SAMA Circular BC/60 (1403H) requires the extension to be charged on the same basis as the original guarantee/credit period for the remaining validity, not a separate discounted rate. <span class="clause-tag">Circ. BC/60</span></small>
-        </div>
-
-        <div id="amendBlock" style="display:none;">
-          <hr class="div">
-          <div class="subhead">Other amendment (non‑amount)</div>
-          <div class="field-row">
-            <div class="field">
-              <label>Base Amendment Fee <span class="hint">SAR</span></label>
-              <input type="number" id="amendBase" value="25">
-            </div>
-            <div class="field">
-              <label>Telex / Cable / Mail Charges <span class="hint">SAR, actual</span></label>
-              <input type="number" id="amendCable" value="20">
-            </div>
-          </div>
-          <small class="note">Item 1(e)(2): SR 25 flat + actual telex/cable/mail cost — applies to amendments that do not involve an increase in amount (e.g. tenor wording, beneficiary details). <span class="clause-tag">Item 1(e)(2)</span></small>
-        </div>
-
-        <div id="adviseBlock" style="display:none;">
-          <hr class="div">
-          <small class="note">Item 1(c): Advising an L/C carries a flat fee of SR 20 — no percentage commission applies. <span class="clause-tag">Item 1(c)</span></small>
-        </div>
-
-        <hr class="div">
-        <div class="field">
-          <label>Minimum Opening Commission <span class="hint">SAR — bank‑specific floor, not set by SAMA</span></label>
-          <input type="number" id="lcMin" value="0">
-        </div>
-
-        <div class="field-row">
-          <div class="field">
-            <label>Advising Fee <span class="hint">SAR, if applicable</span></label>
-            <input type="number" id="lcAdvise" value="0">
-          </div>
-          <div class="field">
-            <label>Other Cable / Courier <span class="hint">SAR</span></label>
-            <input type="number" id="lcCourier" value="0">
-          </div>
-        </div>
-
-        <div class="field-row">
-          <div class="field">
-            <label>VAT <span class="hint">%, applies to all L/C commissions</span></label>
-            <input type="number" id="lcVat" value="15" step="0.5">
-          </div>
-          <div class="field">
-            <label>Bank‑Charged Amount <span class="hint">SAR, for comparison — optional</span></label>
-            <input type="number" id="lcBankCharged" value="">
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="position:sticky;top:20px;">
-        <h2>Results</h2>
-        <div class="results-total">
-          <div class="lbl">Total Commission (incl. VAT)</div>
-          <div class="amt" id="lcTotal">0.00</div>
-        </div>
-        <div id="lcLines"></div>
-        <div id="lcVarianceBox"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ LG PANEL ============ -->
-  <section class="panel" id="panel-lg">
-    <div class="grid">
-      <div class="card">
-        <h2>Guarantee Setup</h2>
-
-        <div class="field">
-          <label>Transaction Type</label>
-        </div>
-        <div class="seg" id="lgType">
-          <button class="active" data-v="new">New Guarantee</button>
-          <button data-v="extension">Extension of Validity</button>
-        </div>
-
-        <div class="field-row">
-          <div class="field">
-            <label>Guarantee Amount <span class="hint">SAR</span></label>
-            <input type="number" id="lgAmount" value="2000000" step="1000">
-          </div>
-          <div class="field">
-            <label>Validity Period</label>
-            <input type="number" id="lgDays" value="365" step="1">
-          </div>
-        </div>
-        <div class="field">
-          <label>Period Unit</label>
-          <select id="lgUnit">
-            <option value="days">Days (Actual/365)</option>
-            <option value="months">Months (1/12 per month, part = full month)</option>
+          <label>Issuing Bank</label>
+          <select id="bank">
+            <option value="">-- Select Bank --</option>
+            <option value="ANB">ANB</option>
+            <option value="SNB">SNB</option>
+            <option value="Al Rajhi">Al Rajhi</option>
+            <option value="Riyad">Riyad Bank</option>
+            <option value="Alinma">Alinma</option>
+            <option value="BSF">BSF</option>
+            <option value="SABB">SABB</option>
+            <option value="Emirates NBD">Emirates NBD</option>
+            <option value="FAB">FAB</option>
+            <option value="QNB">QNB</option>
+            <option value="Other">Other</option>
           </select>
         </div>
-        <small class="note">Item 7: ¼% p.a. on the first SR 10,000,000, ⅛% p.a. on the excess. Circular BC/60 (1403H) requires fees on guarantees to be charged on the <b>actual</b> validity term, pro‑rated from the annual rate — same method applies to extensions. <span class="clause-tag">Item 7 · Circ. BC/60</span></small>
-
-        <hr class="div">
-        <div class="checkline">
-          <input type="checkbox" id="lgMinFlag">
-          <label>Apply SR 25 minimum fee (small‑amount guarantees) <span class="clause-tag">Circ. BC/60 §2</span></label>
-        </div>
-        <div class="checkline">
-          <input type="checkbox" id="lgBlFlag">
-          <label>Add missing Bill of Lading indemnity fee — SR 20 flat <span class="clause-tag">Item 7</span></label>
-        </div>
-        <small class="note">Note: the circular explicitly bars charging separate mail/postal expenses on guarantees, and bars splitting guarantees into government / non‑government pricing tiers. <span class="clause-tag">Circ. BC/60 §3–4</span></small>
-
-        <hr class="div">
-        <div class="field-row">
-          <div class="field">
-            <label>VAT <span class="hint">%</span></label>
-            <input type="number" id="lgVat" value="15" step="0.5">
-          </div>
-          <div class="field">
-            <label>Bank‑Charged Amount <span class="hint">SAR, optional</span></label>
-            <input type="number" id="lgBankCharged" value="">
-          </div>
+        <div class="field"><label>LC Number</label><input type="text" id="lc-number" placeholder="Required"></div>
+        <div class="field"><label>Internal Ref / PO No.</label><input type="text" id="internal-ref"></div>
+        <div class="field">
+          <label>Currency</label>
+          <select id="currency">
+            <option value="SAR">SAR</option><option value="USD">USD</option><option value="EUR">EUR</option>
+            <option value="GBP">GBP</option><option value="AED">AED</option><option value="JPY">JPY</option>
+            <option value="CNY">CNY</option>
+          </select>
         </div>
       </div>
+    </div>
 
-      <div class="card" style="position:sticky;top:20px;">
-        <h2>Results</h2>
-        <div class="results-total">
-          <div class="lbl">Total Commission (incl. VAT)</div>
-          <div class="amt" id="lgTotal">0.00</div>
-        </div>
-        <div id="lgLines"></div>
-        <div id="lgVarianceBox"></div>
+    <div class="card">
+      <h3>LC Details</h3>
+      <div class="field-grid">
+        <div class="field"><label>Issue Date</label><input type="date" id="issue-date"></div>
+        <div class="field"><label>Expiry Date</label><input type="date" id="expiry-date"></div>
+        <div class="field"><label>Amount</label><input type="number" id="amount" placeholder="Required" step="0.01"></div>
+        <div class="field"><label>Validity (Months)</label><input type="number" id="validity" placeholder="Required" value="3"></div>
+        <div class="field"><label>Tolerance (%)</label><input type="number" id="tolerance" value="0"></div>
+        <div class="field"><label>Incoterm</label><input type="text" id="incoterm" placeholder="e.g. CIF, FOB"></div>
       </div>
     </div>
-  </section>
 
-  <!-- ============ REFERENCE PANEL ============ -->
-  <section class="panel" id="panel-ref">
-    <div class="ref-card">
-      <h3>1 · Documentary L/C (Import Credits)</h3>
-      <div class="src">SAMA Schedule of Charges, Circular M/A/1/291 (19‑9‑1399H / 12‑8‑1979)</div>
-      <table class="ref">
-        <tr><th>Item</th><th>Charge</th></tr>
-        <tr><td class="item">(a) Opening / issuing</td><td class="rate">¼% first SR 400,000 /3mo + ⅛% excess /3mo + 1/16% per month after 3mo</td></tr>
-        <tr><td class="item">(b) Confirming</td><td class="rate">Actual amount charged by correspondent</td></tr>
-        <tr><td class="item">(c) Advising</td><td class="rate">SR 20 flat</td></tr>
-        <tr><td class="item">(d) Negotiation</td><td class="rate">No charge</td></tr>
-        <tr><td class="item">(e)(1) Amendment — increase in amount</td><td class="rate">As per opening tariff (a)</td></tr>
-        <tr><td class="item">(e)(2) Amendment — other</td><td class="rate">SR 25 + telex/cable/mail charges</td></tr>
-        <tr><td class="item">(f) Cancellation of unutilized L/C</td><td class="rate">No charge</td></tr>
-        <tr><td class="item">(g) Miscellaneous</td><td class="rate">No charge (7‑day grace period to retire documents)</td></tr>
-      </table>
+    <div class="card">
+      <h3>Additional Charges & Comparison</h3>
+      <div class="field-grid">
+        <div class="field"><label>Advising Fee</label><input type="number" id="fee-advising" value="0"></div>
+        <div class="field"><label>Courier / Swift</label><input type="number" id="fee-courier" value="0"></div>
+        <div class="field"><label>Other Charges</label><input type="number" id="fee-other" value="0"></div>
+        <div class="field"><label>Bank Charged Amount</label><input type="number" id="bank-charged" placeholder="For comparison"></div>
+      </div>
     </div>
 
-    <div class="ref-card">
-      <h3>7 · Commission on Guarantees</h3>
-      <div class="src">Item 7, as clarified by Circular 4422/BC/60 (20‑3‑1403H / 4‑1‑1983)</div>
-      <table class="ref">
-        <tr><th>Item</th><th>Charge</th></tr>
-        <tr><td class="item">First SR 10,000,000</td><td class="rate">¼% per annum</td></tr>
-        <tr><td class="item">Additional amount</td><td class="rate">⅛% per annum</td></tr>
-        <tr><td class="item">Missing Bill of Lading indemnity</td><td class="rate">SR 20 flat</td></tr>
-        <tr><td class="item">Small guarantees (bank option)</td><td class="rate">Minimum SR 25 per guarantee / per extension</td></tr>
-        <tr><td class="item">Mail expenses</td><td class="rate">Not chargeable — not provided for in tariff</td></tr>
-        <tr><td class="item">Government vs. non‑government split</td><td class="rate">Not permitted — single tariff applies to all</td></tr>
-      </table>
+    <div class="btn-group">
+      <button class="btn btn-primary" id="btn-calc" onclick="calculate()" disabled>Calculate</button>
+      <button class="btn btn-secondary" id="btn-report" onclick="generateReport()" disabled>Generate Report</button>
+      <button class="btn btn-secondary" onclick="exportPDF()">Export PDF</button>
+      <button class="btn btn-secondary" onclick="exportExcel()">Export Excel</button>
+      <button class="btn btn-secondary" onclick="saveReport()">Save</button>
+      <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
     </div>
 
-    <div class="ref-card">
-      <h3>2–6, 8 · Other Treasury‑Relevant Items</h3>
-      <div class="src">Selected from the same schedule — for reference during account &amp; payment reviews</div>
-      <table class="ref">
-        <tr><th>Item</th><th>Charge</th></tr>
-        <tr><td class="item">2(i)(b) Documentary collection, payable in Kingdom, on others</td><td class="rate">1/10% + postage (min SR 10, max SR 100)</td></tr>
-        <tr><td class="item">2(ii)(b) Documentary collection, payable outside Kingdom</td><td class="rate">SR 1 per thousand + postage (min SR 25, max SR 250)</td></tr>
-        <tr><td class="item">3 Remittances — draft/mail transfer, in‑Kingdom</td><td class="rate">SR 5 up to SR 10,000; SR 10 over SR 10,000</td></tr>
-        <tr><td class="item">3 Remittances — cable/telex, in‑Kingdom</td><td class="rate">SR 10 up to SR 10,000; SR 20 + actual cable cost over</td></tr>
-        <tr><td class="item">3 Remittances — outside Kingdom</td><td class="rate">SR 1 per thousand (min SR 10, max SR 50) + actual cable/telex</td></tr>
-        <tr><td class="item">4(i) Sale of travellers cheques / personal L/Cs</td><td class="rate">1%</td></tr>
-        <tr><td class="item">4(ii)–4(iv) Purchase of TCs, incoming drafts, negotiation of personal L/C drafts</td><td class="rate">No charge</td></tr>
-        <tr><td class="item">5 Unpaid collection items returned</td><td class="rate">SR 10 per item flat (foreign); no charge (local)</td></tr>
-        <tr><td class="item">6(a) Current account below SR 1,000 average balance</td><td class="rate">SR 15 per half‑year</td></tr>
-        <tr><td class="item">6(d) Lost cheque book</td><td class="rate">SR 10</td></tr>
-        <tr><td class="item">6(e) Standing instructions</td><td class="rate">SR 5 per payment</td></tr>
-        <tr><td class="item">8(a) FX selling rate above SAMA rate</td><td class="rate">1/8% first USD 1m; 1/16% on excess</td></tr>
-      </table>
+    <div class="card" style="margin-top:20px;">
+      <h3>Results & Breakdown</h3>
+      <div id="breakdown-container" class="breakdown-box">
+        <i>Enter required details and click Calculate.</i>
+      </div>
+      <div id="comparison-status"></div>
     </div>
+  </div>
 
-    <div class="ref-card">
-      <h3>General note</h3>
-      <table class="ref">
-        <tr><td>The published tariff is a <b>maximum</b> — banks are permitted to charge their customers less than the scheduled rate, but not more.</td></tr>
-      </table>
+  <div class="side-panel">
+    <div class="card register-card">
+      <h3>LC Register / History</h3>
+      <input type="text" id="search-box" class="register-search" placeholder="Search by Applicant, LC, Bank..." onkeyup="renderHistory()">
+      <div id="history-list"></div>
     </div>
-  </section>
-</main>
+    <div class="card">
+      <h3>Recent Activity</h3>
+      <div id="activity-log" style="font-size: 11px; font-family: monospace; color: var(--muted); line-height: 1.6;"></div>
+    </div>
+  </div>
+</div>
 
-<footer class="foot">
-  Sources: SAMA Circular M/A/1/291 (19‑9‑1399H) — original bank services tariff; SAMA Circular 4422/BC/60 (20‑3‑1403H) — standardized fee collection method for letters of guarantee. Built for internal treasury use at TPMC — verify against current facility agreements, as banks may apply updated tariffs since these circulars.
-</footer>
+<!-- Print Section (Hidden on screen) -->
+<div id="print-section">
+  <div class="print-header">
+    <h1 id="print-logo" style="margin-bottom:5px;">TPMC</h1>
+    <h2>Treasury Department</h2>
+    <h3>LETTER OF CREDIT COMMISSION REPORT</h3>
+  </div>
+  
+  <table class="print-table">
+    <tr>
+      <th>Report No</th><td id="p-report-no"></td>
+      <th>Date</th><td id="p-date"></td>
+    </tr>
+    <tr>
+      <th>Prepared By</th><td id="p-prepared"></td>
+      <th>Department</th><td id="p-dept"></td>
+    </tr>
+    <tr>
+      <th>Applicant</th><td id="p-applicant"></td>
+      <th>Beneficiary</th><td id="p-beneficiary"></td>
+    </tr>
+    <tr>
+      <th>Issuing Bank</th><td id="p-bank"></td>
+      <th>LC Number</th><td id="p-lc"></td>
+    </tr>
+    <tr>
+      <th>Currency / Amount</th><td id="p-curr-amt"></td>
+      <th>Validity</th><td id="p-validity"></td>
+    </tr>
+  </table>
+
+  <h4>Calculation Breakdown</h4>
+  <div id="p-breakdown" style="font-family: monospace; font-size: 12px; margin-bottom: 20px; background: #f9f9f9; padding: 10px; border: 1px solid #ddd;"></div>
+
+  <table class="print-table">
+    <tr>
+      <th>Expected Commission</th><td id="p-expected"></td>
+      <th>VAT</th><td id="p-vat"></td>
+    </tr>
+    <tr>
+      <th>Courier/Advising/Other</th><td id="p-fees"></td>
+      <th>Grand Total</th><td id="p-grand" style="font-weight:bold;"></td>
+    </tr>
+  </table>
+
+  <h4>Bank Comparison</h4>
+  <table class="print-table">
+    <tr>
+      <th>Calculated Total</th><td id="p-comp-calc"></td>
+      <th>Bank Charged</th><td id="p-comp-bank"></td>
+    </tr>
+    <tr>
+      <th>Difference</th><td id="p-comp-diff"></td>
+      <th>Status</th><td id="p-comp-status"></td>
+    </tr>
+  </table>
+
+  <div style="margin-top:30px; font-size:12px;">
+    <strong>Audit Trail:</strong> Generated on <span class="p-audit-date"></span> by <span class="p-audit-user"></span>. System V2.0.
+  </div>
+
+  <div class="signatures">
+    <div>Prepared By</div>
+    <div>Approved By</div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settings-modal" class="modal-overlay">
+  <div class="modal">
+    <h3>System Settings</h3>
+    <div class="field"><label>Prepared By (User)</label><input type="text" id="set-user"></div>
+    <div class="field"><label>Department</label><input type="text" id="set-dept"></div>
+    <div class="field"><label>Company Logo Text</label><input type="text" id="set-logo"></div>
+    <div class="field"><label>VAT %</label><input type="number" id="set-vat" step="0.1"></div>
+    <div class="field">
+      <label>Default Theme</label>
+      <select id="set-theme">
+        <option value="theme-light">Light</option>
+        <option value="theme-dark">Dark</option>
+        <option value="theme-blue">Blue Treasury</option>
+      </select>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      <button class="btn btn-secondary" onclick="closeModal('settings-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- About Modal -->
+<div id="about-modal" class="modal-overlay">
+  <div class="modal">
+    <h3>About System</h3>
+    <p style="font-size:13px; line-height:1.5;"><strong>TPMC Treasury LC/LG System</strong><br>Version 2.0<br>Developed for Internal Use.</p>
+    <p style="font-size:12px; color:var(--muted);">References: SAMA Circular M/A/1/291 & Circular 4422/BC/60.</p>
+    <button class="btn btn-secondary" onclick="closeModal('about-modal')">Close</button>
+  </div>
+</div>
 
 <script>
-// ---------- helpers ----------
-const fmt = n => (isFinite(n)?n:0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-function el(id){return document.getElementById(id);}
-function line(container,k,v,cls){
-  const d=document.createElement('div');
-  d.className='rline'+(cls?(' '+cls):'');
-  d.innerHTML=`<span class="k">${k}</span><span class="v">${v}</span>`;
-  container.appendChild(d);
-}
-function varianceBox(container, expected, bankCharged){
-  container.innerHTML='';
-  if(bankCharged===''||bankCharged===null||isNaN(bankCharged)){
-    const d=document.createElement('div');
-    d.className='variance-box neutral';
-    d.textContent='Enter a bank‑charged amount to compare against the SAMA‑tariff expected commission.';
-    container.appendChild(d);
-    return;
-  }
-  const diff = bankCharged - expected;
-  const pct = expected!==0 ? (diff/expected*100) : 0;
-  const d=document.createElement('div');
-  if(Math.abs(diff) < 0.01){
-    d.className='variance-box ok';
-    d.textContent='Bank‑charged amount matches the calculated commission.';
-  } else {
-    d.className='variance-box bad';
-    d.textContent = `Variance of SAR ${fmt(Math.abs(diff))} (${diff>0?'+':''}${pct.toFixed(3)}%) versus the SAMA‑tariff expected amount — worth a manual review against the facility pricing.`;
-  }
-  container.appendChild(d);
+// --- State & Settings ---
+let settings = JSON.parse(localStorage.getItem('tpmc_settings')) || {
+  user: 'Abdulrahman', dept: 'Treasury', logo: 'TPMC', vat: 15, theme: 'theme-light'
+};
+let register = JSON.parse(localStorage.getItem('tpmc_register')) || [];
+let activity = JSON.parse(localStorage.getItem('tpmc_activity')) || [];
+let currentCalcResult = null;
+
+// --- Init ---
+function init() {
+  applySettings();
+  document.getElementById('display-date').textContent = `Date: ${new Date().toLocaleDateString('en-GB')}`;
+  renderDashboard();
+  renderHistory();
+  renderActivity();
+  setupValidation();
 }
 
-// tiered opening-commission engine per Item 1(a)
-function tieredCommission(amount, months){
-  const tier1 = Math.min(amount,400000)*0.0025;          // 1/4% on first 400,000
-  const tier2 = Math.max(amount-400000,0)*0.00125;       // 1/8% on excess
-  const extraMonths = Math.max(Math.ceil(months-3),0);   // 1/16% per month (part thereof) after 3 months
-  const tier3 = amount * extraMonths * 0.000625;
-  return {tier1,tier2,tier3,extraMonths,subtotal:tier1+tier2+tier3};
+// --- Formatters ---
+const fmt = (n) => (isFinite(n) ? n : 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const genReportNo = () => {
+  const d = new Date();
+  const dateStr = d.getFullYear().toString() + (d.getMonth()+1).toString().padStart(2,'0') + d.getDate().toString().padStart(2,'0');
+  const count = register.filter(r => r.reportNo.includes(dateStr)).length + 1;
+  return `LC-${dateStr}-${count.toString().padStart(3,'0')}`;
+};
+
+// --- Settings Management ---
+function openSettings() {
+  document.getElementById('set-user').value = settings.user;
+  document.getElementById('set-dept').value = settings.dept;
+  document.getElementById('set-logo').value = settings.logo;
+  document.getElementById('set-vat').value = settings.vat;
+  document.getElementById('set-theme').value = settings.theme;
+  document.getElementById('settings-modal').style.display = 'flex';
+}
+function saveSettings() {
+  settings.user = document.getElementById('set-user').value || 'User';
+  settings.dept = document.getElementById('set-dept').value || 'Treasury';
+  settings.logo = document.getElementById('set-logo').value || 'TPMC';
+  settings.vat = parseFloat(document.getElementById('set-vat').value) || 15;
+  settings.theme = document.getElementById('set-theme').value;
+  localStorage.setItem('tpmc_settings', JSON.stringify(settings));
+  applySettings();
+  closeModal('settings-modal');
+  logActivity('Updated System Settings');
+}
+function applySettings() {
+  document.body.className = settings.theme;
+  document.getElementById('display-user').textContent = `User: ${settings.user}`;
+  document.getElementById('display-logo').textContent = settings.logo;
+  document.getElementById('print-logo').textContent = settings.logo;
+}
+function toggleTheme() {
+  const themes = ['theme-light', 'theme-dark', 'theme-blue'];
+  let idx = themes.indexOf(settings.theme);
+  settings.theme = themes[(idx + 1) % themes.length];
+  localStorage.setItem('tpmc_settings', JSON.stringify(settings));
+  applySettings();
+}
+function openAbout() { document.getElementById('about-modal').style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+// --- Validation ---
+function setupValidation() {
+  const inputs = ['amount', 'validity', 'bank', 'lc-number'];
+  inputs.forEach(id => document.getElementById(id).addEventListener('input', checkValid));
+}
+function checkValid() {
+  const amt = document.getElementById('amount').value;
+  const val = document.getElementById('validity').value;
+  const bnk = document.getElementById('bank').value;
+  const lc = document.getElementById('lc-number').value;
+  const valid = amt && val && bnk && lc;
+  document.getElementById('btn-calc').disabled = !valid;
+  document.getElementById('btn-report').disabled = !valid;
 }
 
-// ---------- tabs ----------
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    btn.classList.add('active');
-    el('panel-'+btn.dataset.tab).classList.add('active');
+// --- Calculation Logic ---
+function calculate() {
+  const amount = parseFloat(document.getElementById('amount').value) || 0;
+  const months = parseFloat(document.getElementById('validity').value) || 0;
+  const adv = parseFloat(document.getElementById('fee-advising').value) || 0;
+  const cour = parseFloat(document.getElementById('fee-courier').value) || 0;
+  const oth = parseFloat(document.getElementById('fee-other').value) || 0;
+  const bankChgStr = document.getElementById('bank-charged').value;
+  const bankChg = bankChgStr ? parseFloat(bankChgStr) : null;
+  const vatRate = settings.vat / 100;
+
+  let bd = ''; // Breakdown HTML string
+  let comm = 0;
+
+  // SAMA Item 1(a) Logic
+  const t1Amt = Math.min(amount, 400000);
+  const t1Fee = t1Amt * 0.0025;
+  bd += `<div class="breakdown-line"><span>First 400k (0.25% x 3m):</span><span>${fmt(t1Amt)} × 0.25% = ${fmt(t1Fee)}</span></div>`;
+  comm += t1Fee;
+
+  if(amount > 400000) {
+    const t2Amt = amount - 400000;
+    const t2Fee = t2Amt * 0.00125;
+    bd += `<div class="breakdown-line"><span>Remaining (0.125% x 3m):</span><span>${fmt(t2Amt)} × 0.125% = ${fmt(t2Fee)}</span></div>`;
+    comm += t2Fee;
+  }
+
+  if(months > 3) {
+    const extra = Math.ceil(months - 3);
+    const t3Fee = amount * extra * 0.000625;
+    bd += `<div class="breakdown-line"><span>Extension (>3m, 1/16% /m):</span><span>${fmt(amount)} × 0.0625% × ${extra} = ${fmt(t3Fee)}</span></div>`;
+    comm += t3Fee;
+  }
+
+  bd += `<div class="breakdown-line total"><span>Base Commission:</span><span>${fmt(comm)}</span></div>`;
+  
+  const vatAmt = (comm + adv + cour + oth) * vatRate;
+  const grand = comm + adv + cour + oth + vatAmt;
+
+  bd += `<br><div class="breakdown-line"><span>VAT (${settings.vat}%):</span><span>${fmt(vatAmt)}</span></div>`;
+  bd += `<div class="breakdown-line"><span>Advising/Courier/Other:</span><span>${fmt(adv + cour + oth)}</span></div>`;
+  bd += `<div class="breakdown-line total" style="font-size:14px;"><span>Grand Total (Expected):</span><span>${fmt(grand)}</span></div>`;
+
+  document.getElementById('breakdown-container').innerHTML = bd;
+
+  // Status Logic
+  let statHtml = '';
+  let statusStr = 'Pending';
+  if(bankChg !== null) {
+    const diff = bankChg - grand;
+    const varPct = grand ? (diff / grand * 100) : 0;
+    let cls = 'status-ok';
+    let msg = '🟢 Correct';
+    statusStr = 'Completed';
+    
+    if(diff > 5) { cls = 'status-bad'; msg = '🔴 Overcharged'; statusStr = 'Overcharged'; }
+    else if(diff < -5) { cls = 'status-review'; msg = '🟡 Undercharged / Review'; statusStr = 'Review'; }
+
+    statHtml = `
+      <div class="${cls} status-box">
+        <div>Bank: SAR ${fmt(bankChg)} | Diff: SAR ${fmt(diff)} (${varPct>0?'+':''}${varPct.toFixed(2)}%)</div>
+        <div>${msg}</div>
+      </div>
+    `;
+  }
+  document.getElementById('comparison-status').innerHTML = statHtml;
+
+  currentCalcResult = {
+    amount, months, comm, vat: vatAmt, fees: adv+cour+oth, grand,
+    expected: grand, bankChg, diff: bankChg !== null ? (bankChg - grand) : 0, statusStr, bd
+  };
+}
+
+// --- Data Management & UI ---
+function saveReport() {
+  if(!currentCalcResult) return alert('Calculate first!');
+  const repNo = genReportNo();
+  const data = {
+    reportNo: repNo,
+    date: new Date().toISOString(),
+    applicant: document.getElementById('applicant').value,
+    beneficiary: document.getElementById('beneficiary').value,
+    bank: document.getElementById('bank').value,
+    lc: document.getElementById('lc-number').value,
+    curr: document.getElementById('currency').value,
+    amount: currentCalcResult.amount,
+    grand: currentCalcResult.grand,
+    status: currentCalcResult.statusStr
+  };
+  register.unshift(data);
+  localStorage.setItem('tpmc_register', JSON.stringify(register));
+  logActivity(`Saved Report ${repNo}`);
+  renderHistory();
+  renderDashboard();
+  alert(`Report Saved: ${repNo}`);
+}
+
+function loadReportToForm(index) {
+  const r = register[index];
+  document.getElementById('applicant').value = r.applicant;
+  document.getElementById('beneficiary').value = r.beneficiary;
+  document.getElementById('bank').value = r.bank;
+  document.getElementById('lc-number').value = r.lc;
+  document.getElementById('currency').value = r.curr;
+  document.getElementById('amount').value = r.amount;
+  checkValid();
+  logActivity(`Loaded Report ${r.reportNo}`);
+}
+
+function clearForm() {
+  document.querySelectorAll('input:not([type="date"])').forEach(el => el.value = '');
+  document.getElementById('applicant').value = 'TPMC';
+  document.getElementById('tolerance').value = '0';
+  document.getElementById('validity').value = '3';
+  ['fee-advising','fee-courier','fee-other'].forEach(id => document.getElementById(id).value = '0');
+  document.getElementById('breakdown-container').innerHTML = '<i>Enter required details and click Calculate.</i>';
+  document.getElementById('comparison-status').innerHTML = '';
+  currentCalcResult = null;
+  checkValid();
+}
+
+// --- Dashboard & Panels ---
+function renderDashboard() {
+  const today = new Date().toISOString().split('T')[0];
+  const todaysReps = register.filter(r => r.date.startsWith(today));
+  
+  document.getElementById('dash-count').textContent = todaysReps.length;
+  
+  const totalComm = todaysReps.reduce((sum, r) => sum + r.grand, 0);
+  document.getElementById('dash-total').textContent = `SAR ${fmt(totalComm)}`;
+  
+  const avg = todaysReps.length ? (totalComm / todaysReps.length) : 0;
+  document.getElementById('dash-avg').textContent = `SAR ${fmt(avg)}`;
+  
+  const largest = todaysReps.length ? Math.max(...todaysReps.map(r => r.amount)) : 0;
+  document.getElementById('dash-largest').textContent = `${todaysReps.length ? todaysReps[0].curr : 'SAR'} ${fmt(largest)}`;
+}
+
+function renderHistory() {
+  const q = document.getElementById('search-box').value.toLowerCase();
+  const html = register.filter(r => 
+    r.reportNo.toLowerCase().includes(q) || 
+    r.applicant.toLowerCase().includes(q) || 
+    r.bank.toLowerCase().includes(q) || 
+    r.lc.toLowerCase().includes(q)
+  ).map((r, i) => `
+    <div class="register-item" onclick="loadReportToForm(${i})">
+      <div class="top"><span>${r.reportNo}</span> <span class="badge ${r.status.toLowerCase()}">${r.status}</span></div>
+      <div class="mid">${r.bank} | LC: ${r.lc}</div>
+      <div class="bot"><span>${r.applicant}</span> <span>${r.curr} ${fmt(r.amount)}</span></div>
+    </div>
+  `).join('');
+  document.getElementById('history-list').innerHTML = html || '<div style="font-size:12px;color:gray;">No reports found.</div>';
+}
+
+function logActivity(msg) {
+  const d = new Date();
+  const time = `${d.getDate()}-${d.toLocaleString('en', {month:'short'})} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`;
+  activity.unshift(`${time} - ${msg}`);
+  if(activity.length > 10) activity.pop();
+  localStorage.setItem('tpmc_activity', JSON.stringify(activity));
+  renderActivity();
+}
+
+function renderActivity() {
+  document.getElementById('activity-log').innerHTML = activity.join('<br><br>');
+}
+
+// --- Exporting & Printing ---
+function prepPrintDOM() {
+  if(!currentCalcResult) { alert('Calculate first!'); return false; }
+  document.getElementById('p-report-no').textContent = genReportNo();
+  document.getElementById('p-date').textContent = new Date().toLocaleDateString('en-GB');
+  document.getElementById('p-prepared').textContent = settings.user;
+  document.getElementById('p-dept').textContent = settings.dept;
+  
+  document.getElementById('p-applicant').textContent = document.getElementById('applicant').value;
+  document.getElementById('p-beneficiary').textContent = document.getElementById('beneficiary').value;
+  document.getElementById('p-bank').textContent = document.getElementById('bank').value;
+  document.getElementById('p-lc').textContent = document.getElementById('lc-number').value;
+  document.getElementById('p-curr-amt').textContent = `${document.getElementById('currency').value} ${fmt(currentCalcResult.amount)}`;
+  document.getElementById('p-validity').textContent = `${currentCalcResult.months} Months`;
+
+  document.getElementById('p-breakdown').innerHTML = currentCalcResult.bd;
+  
+  document.getElementById('p-expected').textContent = `SAR ${fmt(currentCalcResult.comm)}`;
+  document.getElementById('p-vat').textContent = `SAR ${fmt(currentCalcResult.vat)}`;
+  document.getElementById('p-fees').textContent = `SAR ${fmt(currentCalcResult.fees)}`;
+  document.getElementById('p-grand').textContent = `SAR ${fmt(currentCalcResult.grand)}`;
+
+  document.getElementById('p-comp-calc').textContent = `SAR ${fmt(currentCalcResult.expected)}`;
+  document.getElementById('p-comp-bank').textContent = currentCalcResult.bankChg !== null ? `SAR ${fmt(currentCalcResult.bankChg)}` : 'N/A';
+  document.getElementById('p-comp-diff').textContent = `SAR ${fmt(currentCalcResult.diff)}`;
+  document.getElementById('p-comp-status').textContent = currentCalcResult.statusStr;
+
+  document.querySelectorAll('.p-audit-date').forEach(e=>e.textContent=new Date().toLocaleString());
+  document.querySelectorAll('.p-audit-user').forEach(e=>e.textContent=settings.user);
+  return true;
+}
+
+function generateReport() {
+  if(prepPrintDOM()) {
+    logActivity('Generated Report');
+    window.print();
+  }
+}
+
+function exportPDF() {
+  if(!prepPrintDOM()) return;
+  const element = document.getElementById('print-section');
+  element.style.display = 'block'; // force visible for html2pdf
+  const opt = {
+    margin: 0.5,
+    filename: `${document.getElementById('p-report-no').textContent}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save().then(() => {
+    element.style.display = 'none';
+    logActivity('Exported PDF');
   });
-});
-
-// ---------- LC panel ----------
-let lcTypeVal='new';
-document.querySelectorAll('#lcType button').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('#lcType button').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    lcTypeVal=b.dataset.v;
-    updateLcVisibility();
-    calcLC();
-  });
-});
-function updateLcVisibility(){
-  el('lcAmountBlock').style.display = (lcTypeVal==='amend'||lcTypeVal==='advise') ? 'none':'block';
-  el('extensionBlock').style.display = (lcTypeVal==='extension'||lcTypeVal==='incext') ? 'block':'none';
-  el('amendBlock').style.display = (lcTypeVal==='amend') ? 'block':'none';
-  el('adviseBlock').style.display = (lcTypeVal==='advise') ? 'block':'none';
-  el('lcAmountLbl').textContent = lcTypeVal==='increase' ? 'Increase Amount (SAR)' : 'L/C Amount (SAR)';
 }
 
-function calcLC(){
-  const linesBox = el('lcLines');
-  linesBox.innerHTML='';
-  const vat = parseFloat(el('lcVat').value)||0;
-  const min = parseFloat(el('lcMin').value)||0;
-  const advise = parseFloat(el('lcAdvise').value)||0;
-  const courier = parseFloat(el('lcCourier').value)||0;
-  let subtotal = 0;
-
-  if(lcTypeVal==='advise'){
-    subtotal = 20 + advise + courier;
-    line(linesBox,'Advising Fee — Item 1(c)', fmt(20));
-    if(advise) line(linesBox,'Additional Advising Fee', fmt(advise));
-    if(courier) line(linesBox,'Cable / Courier', fmt(courier));
-  } else if(lcTypeVal==='amend'){
-    const base = parseFloat(el('amendBase').value)||0;
-    const cable = parseFloat(el('amendCable').value)||0;
-    subtotal = base + cable;
-    line(linesBox,'Amendment Fee — Item 1(e)(2)', fmt(base));
-    line(linesBox,'Telex / Cable / Mail', fmt(cable));
-  } else {
-    const amount = parseFloat(el('lcAmount').value)||0;
-    const months = parseFloat(el('lcMonths').value)||0;
-
-    if(lcTypeVal==='new' || lcTypeVal==='increase'){
-      const t = tieredCommission(amount, months);
-      line(linesBox,'Tier 1 (first SAR 400,000 / 3mo)', fmt(t.tier1));
-      line(linesBox,'Tier 2 (excess / 3mo)', fmt(t.tier2));
-      line(linesBox,`Tier 3 (${t.extraMonths} month(s) beyond 3)`, fmt(t.tier3));
-      let openingSubtotal = t.subtotal;
-      if(min>0 && openingSubtotal<min){
-        line(linesBox,'Minimum Opening Commission applied', fmt(min));
-        openingSubtotal = min;
-      }
-      line(linesBox,'Opening Commission Subtotal', fmt(openingSubtotal), 'total');
-      subtotal += openingSubtotal;
-    }
-
-    if(lcTypeVal==='extension' || lcTypeVal==='incext'){
-      const extMonths = parseFloat(el('extMonths').value)||0;
-      // extension charged on the full LC amount for the additional period, per Circ. BC/60
-      const et = tieredCommission(amount, extMonths<=3?3.0001:extMonths); // ensures tier3 triggers correctly for pure extension length
-      // For an extension standing alone (not stacked on original 3mo block), charge 1/16%/month on full amount
-      const extCommission = amount * Math.max(Math.ceil(extMonths),0) * 0.000625;
-      line(linesBox,`Extension: ${Math.ceil(extMonths)} month(s) × 1/16% on SAR ${fmt(amount)}`, fmt(extCommission));
-      subtotal += extCommission;
-    }
-
-    if(advise){ line(linesBox,'Advising Fee', fmt(advise)); subtotal+=advise; }
-    if(courier){ line(linesBox,'Cable / Courier', fmt(courier)); subtotal+=courier; }
-  }
-
-  const vatAmt = subtotal * (vat/100);
-  line(linesBox,'Subtotal (before VAT)', fmt(subtotal));
-  line(linesBox,`VAT (${vat}%)`, fmt(vatAmt));
-  line(linesBox,'Grand Total', fmt(subtotal+vatAmt), 'total grand');
-
-  el('lcTotal').textContent = fmt(subtotal+vatAmt);
-
-  const bankChargedRaw = el('lcBankCharged').value;
-  const bankCharged = bankChargedRaw===''? '' : parseFloat(bankChargedRaw);
-  if(bankCharged!==''){ line(linesBox,'Bank‑Charged (entered)', fmt(bankCharged)); }
-  varianceBox(el('lcVarianceBox'), subtotal+vatAmt, bankCharged);
+function exportExcel() {
+  if(register.length === 0) return alert('No data in Register to export.');
+  const ws = XLSX.utils.json_to_sheet(register);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "LC_Register");
+  XLSX.writeFile(wb, `LC_Register_${new Date().toISOString().split('T')[0]}.xlsx`);
+  logActivity('Exported Excel Register');
 }
-['lcAmount','lcMonths','extMonths','amendBase','amendCable','lcMin','lcAdvise','lcCourier','lcVat','lcBankCharged']
-  .forEach(id=>el(id).addEventListener('input',calcLC));
 
-// ---------- LG panel ----------
-let lgTypeVal='new';
-document.querySelectorAll('#lgType button').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('#lgType button').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    lgTypeVal=b.dataset.v;
-    calcLG();
-  });
-});
-
-function calcLG(){
-  const linesBox = el('lgLines');
-  linesBox.innerHTML='';
-  const amount = parseFloat(el('lgAmount').value)||0;
-  const period = parseFloat(el('lgDays').value)||0;
-  const unit = el('lgUnit').value;
-  const vat = parseFloat(el('lgVat').value)||0;
-
-  const annualTier1 = Math.min(amount,10000000)*0.0025;
-  const annualTier2 = Math.max(amount-10000000,0)*0.00125;
-  const annualFee = annualTier1+annualTier2;
-
-  let fraction;
-  if(unit==='days'){ fraction = period/365; }
-  else { fraction = Math.ceil(period)/12; }
-
-  let commission = annualFee * fraction;
-
-  line(linesBox,'Annual rate — first SAR 10,000,000 @ ¼%', fmt(annualTier1));
-  line(linesBox,'Annual rate — excess @ ⅛%', fmt(annualTier2));
-  line(linesBox,`Pro‑rated for ${unit==='days'? period+' days (Act/365)': Math.ceil(period)+' month(s)'}`, fmt(commission));
-
-  if(el('lgMinFlag').checked && commission < 25){
-    line(linesBox,'Minimum guarantee fee applied (Circ. BC/60 §2)', fmt(25));
-    commission = 25;
-  }
-  if(el('lgBlFlag').checked){
-    line(linesBox,'Missing Bill of Lading indemnity', fmt(20));
-    commission += 20;
-  }
-  if(lgTypeVal==='extension'){
-    line(linesBox,'Basis', 'Extension charged on same annual rate as original period');
-  }
-
-  const vatAmt = commission * (vat/100);
-  line(linesBox,'Subtotal (before VAT)', fmt(commission));
-  line(linesBox,`VAT (${vat}%)`, fmt(vatAmt));
-  line(linesBox,'Grand Total', fmt(commission+vatAmt), 'total grand');
-
-  el('lgTotal').textContent = fmt(commission+vatAmt);
-
-  const bankChargedRaw = el('lgBankCharged').value;
-  const bankCharged = bankChargedRaw===''? '' : parseFloat(bankChargedRaw);
-  if(bankCharged!==''){ line(linesBox,'Bank‑Charged (entered)', fmt(bankCharged)); }
-  varianceBox(el('lgVarianceBox'), commission+vatAmt, bankCharged);
-}
-['lgAmount','lgDays','lgUnit','lgVat','lgBankCharged','lgMinFlag','lgBlFlag']
-  .forEach(id=>el(id).addEventListener('input',calcLG));
-
-// ---------- init ----------
-updateLcVisibility();
-calcLC();
-calcLG();
+// Run init
+window.onload = init;
 </script>
 </body>
 </html>
