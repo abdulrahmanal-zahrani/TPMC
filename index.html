@@ -3,303 +3,741 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Abdulrahman Mohammed Alzahrani — Contact Card</title>
+<title>TPMC Treasury — LC &amp; LG Commission Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Space+Mono:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --navy: #0b3327;
-    --navy-deep: #051d15;
-    --ivory: #f3efe1;
-    --ink: #14261e;
-    --gold: #a9823c;
-    --gold-soft: #d9bb6f;
-    --line: rgba(20,38,30,0.14);
+    --ink:#0F1B2D;
+    --navy:#0B4C8C;
+    --navy-deep:#0A2540;
+    --parchment:#F5F1E7;
+    --paper:#FFFFFF;
+    --seal:#A97C3F;
+    --seal-soft:#F0E4CC;
+    --line:#DDD5C2;
+    --green:#4F7A34;
+    --green-soft:#E9F0E1;
+    --rust:#AA4430;
+    --rust-soft:#F5E5DF;
+    --muted:#6B6455;
+    --radius:3px;
   }
-
-  *{ box-sizing: border-box; }
-
-  html, body{
-    margin: 0;
-    padding: 0;
-    min-height: 100%;
-  }
-
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
   body{
+    background:var(--parchment);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{font-family:'Lora',Georgia,serif;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  /* ===== Header / stamp ===== */
+  header.top{
+    background:var(--navy-deep);
+    color:#F2ECDD;
+    padding:34px 28px 30px;
+    position:relative;
+    overflow:hidden;
+    border-bottom:3px solid var(--seal);
+  }
+  header.top::before{
+    content:"";
+    position:absolute; inset:0;
     background:
-      radial-gradient(circle at 20% 15%, rgba(201,162,39,0.08), transparent 45%),
-      radial-gradient(circle at 85% 80%, rgba(201,162,39,0.06), transparent 40%),
-      var(--navy);
-    background-color: var(--navy);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Inter', sans-serif;
-    padding: 48px 20px;
+      repeating-linear-gradient(115deg, rgba(255,255,255,.02) 0 2px, transparent 2px 40px);
+    pointer-events:none;
   }
-
-  /* fine engraved-line texture, evoking banknote guilloché work */
-  body::before{
-    content: "";
-    position: fixed;
-    inset: 0;
-    background-image: repeating-linear-gradient(
-      115deg,
-      rgba(217,187,111,0.05) 0px,
-      rgba(217,187,111,0.05) 1px,
-      transparent 1px,
-      transparent 7px
-    );
-    pointer-events: none;
-  }
-
-  .badge{
-    position: relative;
-    width: 100%;
-    max-width: 460px;
-    background:
-      repeating-linear-gradient(
-        180deg,
-        transparent 0px,
-        transparent 27px,
-        rgba(20,38,30,0.05) 27px,
-        rgba(20,38,30,0.05) 28px
-      ),
-      var(--ivory);
-    border-radius: 20px;
-    padding: 48px 44px 36px;
-    box-shadow:
-      0 30px 60px -20px rgba(0,0,0,0.55),
-      0 2px 0 rgba(255,255,255,0.35) inset;
-    text-align: center;
-    border: 1px solid rgba(169,130,60,0.25);
-  }
-
+  .top-inner{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;position:relative;}
   .eyebrow{
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin: 6px 0 22px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--seal-soft);
+    opacity:.85;
+    margin-bottom:10px;
+  }
+  header.top h1{font-size:28px;font-weight:600;margin:0 0 6px;letter-spacing:.01em;}
+  header.top p{margin:0;color:#C9C2AE;font-size:13.5px;max-width:560px;line-height:1.5;}
+
+  .seal-badge{
+    flex-shrink:0;
+    width:104px;height:104px;
+    border:1.5px solid var(--seal);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    text-align:center;
+    position:relative;
+    color:var(--seal-soft);
+  }
+  .seal-badge::before{
+    content:"";
+    position:absolute; inset:6px;
+    border:1px dashed rgba(169,124,63,.6);
+    border-radius:50%;
+  }
+  .seal-badge span{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    line-height:1.5;
+    letter-spacing:.06em;
+    padding:0 10px;
   }
 
-  .photo{
-    width: 132px;
-    height: 132px;
-    margin: 0 auto 26px;
-    border-radius: 50%;
-    background: var(--navy);
-    border: 3px solid var(--ink);
-    outline: 1px solid var(--gold);
-    outline-offset: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
+  /* ===== Layout ===== */
+  main{max-width:1180px;margin:0 auto;padding:26px 28px 70px;}
+
+  .disclaimer{
+    background:var(--seal-soft);
+    border:1px solid #D9C6A0;
+    border-radius:var(--radius);
+    padding:14px 18px;
+    font-size:12.5px;
+    line-height:1.6;
+    color:#4A3B1F;
+    margin-bottom:22px;
+  }
+  .disclaimer b{color:#3A2E14;}
+
+  nav.tabs{
+    display:flex;
+    gap:2px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:24px;
+  }
+  nav.tabs button{
+    font-family:'Lora',serif;
+    font-size:14.5px;
+    font-weight:600;
+    background:none;
+    border:none;
+    padding:11px 18px;
+    cursor:pointer;
+    color:var(--muted);
+    border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+  }
+  nav.tabs button.active{color:var(--navy-deep);border-bottom-color:var(--seal);}
+  nav.tabs button:hover{color:var(--navy-deep);}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:22px;align-items:start;}
+  @media (max-width:880px){.grid{grid-template-columns:1fr;}}
+
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 24px 26px;
+  }
+  .card h2{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--muted);
+    font-weight:600;
+    margin:0 0 16px;
+    padding-bottom:10px;
+    border-bottom:1px solid var(--line);
+    font-family:'IBM Plex Mono',monospace;
   }
 
-  /* Photo fills the circular frame */
-  .photo img{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    display: block;
+  .field{margin-bottom:15px;}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:5px;
+  }
+  .field label .hint{font-weight:400;color:var(--muted);font-size:11px;}
+  .field input, .field select{
+    width:100%;
+    padding:9px 10px;
+    border:1px solid #C9C0A8;
+    border-radius:var(--radius);
+    background:#FFFDF9;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13.5px;
+    color:var(--ink);
+  }
+  .field input:focus, .field select:focus{
+    outline:2px solid var(--navy);
+    outline-offset:1px;
+    border-color:var(--navy);
+  }
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .field small.note{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.5;}
+
+  .seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:15px;}
+  .seg button{
+    padding:10px 8px;
+    border:1px solid #C9C0A8;
+    background:#FFFDF9;
+    border-radius:var(--radius);
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+    text-align:center;
+  }
+  .seg button.active{background:var(--navy-deep);border-color:var(--navy-deep);color:#fff;}
+
+  .checkline{display:flex;align-items:flex-start;gap:8px;margin-bottom:15px;}
+  .checkline input{width:auto;margin-top:3px;}
+  .checkline label{font-size:12.5px;color:var(--ink);}
+
+  hr.div{border:none;border-top:1px solid var(--line);margin:18px 0;}
+  .subhead{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--muted);
+    margin-bottom:12px;
   }
 
-  /* Fallback initials styling, kept in case the <img> is removed */
-  .photo span{
-    font-family: 'Fraunces', serif;
-    font-size: 40px;
-    color: var(--gold-soft);
-    font-weight: 500;
+  /* ===== Results ===== */
+  .results-total{
+    background:var(--navy-deep);
+    color:#F2ECDD;
+    border-radius:var(--radius);
+    padding:18px 20px;
+    margin-bottom:18px;
+  }
+  .results-total .lbl{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--seal-soft);
+    opacity:.85;
+    margin-bottom:6px;
+  }
+  .results-total .amt{font-family:'Lora',serif;font-size:30px;font-weight:600;}
+
+  .rline{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:8px 0;
+    border-bottom:1px dotted var(--line);
+    font-size:13px;
+  }
+  .rline .k{color:var(--muted);}
+  .rline .v{font-family:'IBM Plex Mono',monospace;font-weight:600;}
+  .rline.total{border-bottom:none;border-top:1.5px solid var(--ink);margin-top:4px;padding-top:11px;font-size:14px;}
+  .rline.grand .v{font-size:16px;}
+  .rline.sub{padding-left:12px;font-size:12.5px;}
+
+  .variance-box{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:var(--radius);
+    font-size:12.5px;
+    line-height:1.55;
+  }
+  .variance-box.ok{background:var(--green-soft);color:#2F4B1E;border:1px solid #CBDCB8;}
+  .variance-box.bad{background:var(--rust-soft);color:#6E2C1B;border:1px solid #E4C3B6;}
+  .variance-box.neutral{background:#F1EEE3;color:var(--muted);border:1px solid var(--line);}
+
+  .clause-tag{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--navy);
+    background:#E9F0F8;
+    border:1px solid #C9DAEE;
+    padding:2px 6px;
+    border-radius:2px;
+    margin-left:6px;
+    vertical-align:middle;
   }
 
-  .name{
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 22px;
-    line-height: 1.2;
-    color: var(--ink);
-    margin: 4px 0 32px;
-    letter-spacing: -0.01em;
+  /* ===== Reference table ===== */
+  .ref-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:24px 26px;margin-bottom:20px;}
+  .ref-card h3{font-size:16px;margin:0 0 4px;}
+  .ref-card .src{font-size:11.5px;color:var(--muted);margin-bottom:16px;font-family:'IBM Plex Mono',monospace;}
+  table.ref{width:100%;border-collapse:collapse;font-size:12.8px;}
+  table.ref th{
+    text-align:left;font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--ink);padding:6px 8px;
   }
+  table.ref td{padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.ref tr:last-child td{border-bottom:none;}
+  table.ref td.rate{font-family:'IBM Plex Mono',monospace;white-space:nowrap;font-weight:600;color:var(--navy-deep);}
+  table.ref td.item{font-weight:600;}
 
-  .links{
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .link-stub{
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: var(--ink);
-    color: var(--ivory);
-    text-decoration: none;
-    border-radius: 12px;
-    padding: 13px 18px;
-    font-family: 'Inter', sans-serif;
-    font-size: 14.5px;
-    font-weight: 500;
-    text-align: left;
-    transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
-    overflow: hidden;
-  }
-
-  .link-stub:hover,
-  .link-stub:focus-visible{
-    background: var(--navy-deep);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 22px -10px rgba(0,0,0,0.5);
-  }
-
-  .link-stub:focus-visible{
-    outline: 2px solid var(--gold);
-    outline-offset: 2px;
-  }
-
-  .link-stub .icon{
-    flex: 0 0 auto;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gold-soft);
-  }
-  .link-stub .icon svg{ width: 100%; height: 100%; }
-
-  .link-stub .label{
-    display: flex;
-    flex-direction: column;
-    line-height: 1.25;
-  }
-  .link-stub .label small{
-    font-family: 'Space Mono', monospace;
-    font-size: 9.5px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(246,243,236,0.5);
-  }
-
-  /* perforated divider, ticket-stub feel */
-  .link-stub::after{
-    content: "";
-    position: absolute;
-    right: 46px;
-    top: 6px;
-    bottom: 6px;
-    width: 1px;
-    background-image: linear-gradient(rgba(246,243,236,0.28) 50%, transparent 0%);
-    background-size: 1px 6px;
-  }
-
-  .link-stub .go{
-    margin-left: auto;
-    flex: 0 0 auto;
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    color: rgba(246,243,236,0.5);
-  }
-
-  footer{
-    margin-top: 26px;
-    font-family: 'Space Mono', monospace;
-    font-size: 10.5px;
-    letter-spacing: 0.08em;
-    color: rgba(27,35,55,0.4);
-    text-align: center;
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    .link-stub{ transition: none; }
-  }
+  footer.foot{max-width:1180px;margin:0 auto;padding:0 28px 50px;color:var(--muted);font-size:11.5px;line-height:1.6;}
 </style>
 </head>
 <body>
 
-  <main class="badge">
-    <div class="photo">
-      <img src="Resources/1778667655102.png" alt="Abdulrahman Alzahrani">
+<header class="top">
+  <div class="top-inner">
+    <div>
+      <div class="eyebrow">TPMC Treasury — Internal Calculation Tool</div>
+      <h1>L/C &amp; L/G Commission Calculator</h1>
+      <p>Computes documentary credit and guarantee commissions against the SAMA Schedule of Bank Charges (Circular M/A/1/291, 19‑9‑1399H) and its amending circular on guarantee fees (Circular 4422/BC/60, 20‑3‑1403H).</p>
+    </div>
+    <div class="seal-badge"><span>SAMA · TARIFF<br>M/A/1/291 · 1399H<br>BC/60 · 1403H</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="disclaimer">
+    <b>Basis of calculation.</b> Rates reflect the SAMA maximum tariff schedule for firms, companies &amp; individuals (banks may charge less, per the schedule's general note). This is an internal working tool — always reconcile results against the actual facility/LC agreement and the issuing bank's advice before booking or disputing a charge.
+  </div>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="lc">L/C Commission</button>
+    <button class="tab-btn" data-tab="lg">L/G Commission</button>
+    <button class="tab-btn" data-tab="ref">SAMA Tariff Reference</button>
+  </nav>
+
+  <!-- ============ LC PANEL ============ -->
+  <section class="panel active" id="panel-lc">
+    <div class="grid">
+      <div class="card">
+        <h2>L/C Setup</h2>
+
+        <div class="field">
+          <label>Transaction Type</label>
+        </div>
+        <div class="seg" id="lcType">
+          <button class="active" data-v="new">New L/C</button>
+          <button data-v="increase">Increase in Value</button>
+          <button data-v="extension">Extension of Validity</button>
+          <button data-v="incext">Increase + Extension</button>
+          <button data-v="amend">Other Amendment</button>
+          <button data-v="advise">Advising Only</button>
+        </div>
+
+        <div id="lcAmountBlock">
+          <div class="field-row">
+            <div class="field">
+              <label id="lcAmountLbl">L/C Amount <span class="hint">SAR</span></label>
+              <input type="number" id="lcAmount" value="8000000" step="1000">
+            </div>
+            <div class="field">
+              <label>Validity <span class="hint">months</span></label>
+              <input type="number" id="lcMonths" value="12" step="1">
+            </div>
+          </div>
+          <small class="note" id="lcAmountNote">Item 1(a): ¼% on the first SR 400,000 for 3 months (or part), ⅛% on the excess for 3 months (or part), 1/16% per month (or part) beyond 3 months. <span class="clause-tag">Item 1(a)</span></small>
+        </div>
+
+        <div id="extensionBlock" style="display:none;">
+          <hr class="div">
+          <div class="subhead">Extension period</div>
+          <div class="field">
+            <label>Extension Length <span class="hint">months (part‑month counts as full month)</span></label>
+            <input type="number" id="extMonths" value="3" step="1">
+          </div>
+          <small class="note">SAMA Circular BC/60 (1403H) requires the extension to be charged on the same basis as the original guarantee/credit period for the remaining validity, not a separate discounted rate. <span class="clause-tag">Circ. BC/60</span></small>
+        </div>
+
+        <div id="amendBlock" style="display:none;">
+          <hr class="div">
+          <div class="subhead">Other amendment (non‑amount)</div>
+          <div class="field-row">
+            <div class="field">
+              <label>Base Amendment Fee <span class="hint">SAR</span></label>
+              <input type="number" id="amendBase" value="25">
+            </div>
+            <div class="field">
+              <label>Telex / Cable / Mail Charges <span class="hint">SAR, actual</span></label>
+              <input type="number" id="amendCable" value="20">
+            </div>
+          </div>
+          <small class="note">Item 1(e)(2): SR 25 flat + actual telex/cable/mail cost — applies to amendments that do not involve an increase in amount (e.g. tenor wording, beneficiary details). <span class="clause-tag">Item 1(e)(2)</span></small>
+        </div>
+
+        <div id="adviseBlock" style="display:none;">
+          <hr class="div">
+          <small class="note">Item 1(c): Advising an L/C carries a flat fee of SR 20 — no percentage commission applies. <span class="clause-tag">Item 1(c)</span></small>
+        </div>
+
+        <hr class="div">
+        <div class="field">
+          <label>Minimum Opening Commission <span class="hint">SAR — bank‑specific floor, not set by SAMA</span></label>
+          <input type="number" id="lcMin" value="0">
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Advising Fee <span class="hint">SAR, if applicable</span></label>
+            <input type="number" id="lcAdvise" value="0">
+          </div>
+          <div class="field">
+            <label>Other Cable / Courier <span class="hint">SAR</span></label>
+            <input type="number" id="lcCourier" value="0">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>VAT <span class="hint">%, applies to all L/C commissions</span></label>
+            <input type="number" id="lcVat" value="15" step="0.5">
+          </div>
+          <div class="field">
+            <label>Bank‑Charged Amount <span class="hint">SAR, for comparison — optional</span></label>
+            <input type="number" id="lcBankCharged" value="">
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="position:sticky;top:20px;">
+        <h2>Results</h2>
+        <div class="results-total">
+          <div class="lbl">Total Commission (incl. VAT)</div>
+          <div class="amt" id="lcTotal">0.00</div>
+        </div>
+        <div id="lcLines"></div>
+        <div id="lcVarianceBox"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LG PANEL ============ -->
+  <section class="panel" id="panel-lg">
+    <div class="grid">
+      <div class="card">
+        <h2>Guarantee Setup</h2>
+
+        <div class="field">
+          <label>Transaction Type</label>
+        </div>
+        <div class="seg" id="lgType">
+          <button class="active" data-v="new">New Guarantee</button>
+          <button data-v="extension">Extension of Validity</button>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Guarantee Amount <span class="hint">SAR</span></label>
+            <input type="number" id="lgAmount" value="2000000" step="1000">
+          </div>
+          <div class="field">
+            <label>Validity Period</label>
+            <input type="number" id="lgDays" value="365" step="1">
+          </div>
+        </div>
+        <div class="field">
+          <label>Period Unit</label>
+          <select id="lgUnit">
+            <option value="days">Days (Actual/365)</option>
+            <option value="months">Months (1/12 per month, part = full month)</option>
+          </select>
+        </div>
+        <small class="note">Item 7: ¼% p.a. on the first SR 10,000,000, ⅛% p.a. on the excess. Circular BC/60 (1403H) requires fees on guarantees to be charged on the <b>actual</b> validity term, pro‑rated from the annual rate — same method applies to extensions. <span class="clause-tag">Item 7 · Circ. BC/60</span></small>
+
+        <hr class="div">
+        <div class="checkline">
+          <input type="checkbox" id="lgMinFlag">
+          <label>Apply SR 25 minimum fee (small‑amount guarantees) <span class="clause-tag">Circ. BC/60 §2</span></label>
+        </div>
+        <div class="checkline">
+          <input type="checkbox" id="lgBlFlag">
+          <label>Add missing Bill of Lading indemnity fee — SR 20 flat <span class="clause-tag">Item 7</span></label>
+        </div>
+        <small class="note">Note: the circular explicitly bars charging separate mail/postal expenses on guarantees, and bars splitting guarantees into government / non‑government pricing tiers. <span class="clause-tag">Circ. BC/60 §3–4</span></small>
+
+        <hr class="div">
+        <div class="field-row">
+          <div class="field">
+            <label>VAT <span class="hint">%</span></label>
+            <input type="number" id="lgVat" value="15" step="0.5">
+          </div>
+          <div class="field">
+            <label>Bank‑Charged Amount <span class="hint">SAR, optional</span></label>
+            <input type="number" id="lgBankCharged" value="">
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="position:sticky;top:20px;">
+        <h2>Results</h2>
+        <div class="results-total">
+          <div class="lbl">Total Commission (incl. VAT)</div>
+          <div class="amt" id="lgTotal">0.00</div>
+        </div>
+        <div id="lgLines"></div>
+        <div id="lgVarianceBox"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REFERENCE PANEL ============ -->
+  <section class="panel" id="panel-ref">
+    <div class="ref-card">
+      <h3>1 · Documentary L/C (Import Credits)</h3>
+      <div class="src">SAMA Schedule of Charges, Circular M/A/1/291 (19‑9‑1399H / 12‑8‑1979)</div>
+      <table class="ref">
+        <tr><th>Item</th><th>Charge</th></tr>
+        <tr><td class="item">(a) Opening / issuing</td><td class="rate">¼% first SR 400,000 /3mo + ⅛% excess /3mo + 1/16% per month after 3mo</td></tr>
+        <tr><td class="item">(b) Confirming</td><td class="rate">Actual amount charged by correspondent</td></tr>
+        <tr><td class="item">(c) Advising</td><td class="rate">SR 20 flat</td></tr>
+        <tr><td class="item">(d) Negotiation</td><td class="rate">No charge</td></tr>
+        <tr><td class="item">(e)(1) Amendment — increase in amount</td><td class="rate">As per opening tariff (a)</td></tr>
+        <tr><td class="item">(e)(2) Amendment — other</td><td class="rate">SR 25 + telex/cable/mail charges</td></tr>
+        <tr><td class="item">(f) Cancellation of unutilized L/C</td><td class="rate">No charge</td></tr>
+        <tr><td class="item">(g) Miscellaneous</td><td class="rate">No charge (7‑day grace period to retire documents)</td></tr>
+      </table>
     </div>
 
-    <h1 class="name">Abdulrahman Alzahrani</h1>
+    <div class="ref-card">
+      <h3>7 · Commission on Guarantees</h3>
+      <div class="src">Item 7, as clarified by Circular 4422/BC/60 (20‑3‑1403H / 4‑1‑1983)</div>
+      <table class="ref">
+        <tr><th>Item</th><th>Charge</th></tr>
+        <tr><td class="item">First SR 10,000,000</td><td class="rate">¼% per annum</td></tr>
+        <tr><td class="item">Additional amount</td><td class="rate">⅛% per annum</td></tr>
+        <tr><td class="item">Missing Bill of Lading indemnity</td><td class="rate">SR 20 flat</td></tr>
+        <tr><td class="item">Small guarantees (bank option)</td><td class="rate">Minimum SR 25 per guarantee / per extension</td></tr>
+        <tr><td class="item">Mail expenses</td><td class="rate">Not chargeable — not provided for in tariff</td></tr>
+        <tr><td class="item">Government vs. non‑government split</td><td class="rate">Not permitted — single tariff applies to all</td></tr>
+      </table>
+    </div>
 
-    <nav class="links" aria-label="Contact links">
-      <a class="link-stub" href="https://www.linkedin.com/in/abdulrahman-alzahrani-43713128b" target="_blank" rel="noopener noreferrer">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8.25h4V23h-4V8.25zM8.5 8.25h3.84v2.01h.05c.53-1 1.84-2.06 3.79-2.06 4.06 0 4.81 2.67 4.81 6.14V23h-4v-6.73c0-1.6-.03-3.66-2.23-3.66-2.23 0-2.57 1.74-2.57 3.55V23h-4V8.25z"/></svg>
-        </span>
-        <span class="label">
-          <small>LinkedIn</small>
-          Connect with me
-        </span>
-        <span class="go">→</span>
-      </a>
+    <div class="ref-card">
+      <h3>2–6, 8 · Other Treasury‑Relevant Items</h3>
+      <div class="src">Selected from the same schedule — for reference during account &amp; payment reviews</div>
+      <table class="ref">
+        <tr><th>Item</th><th>Charge</th></tr>
+        <tr><td class="item">2(i)(b) Documentary collection, payable in Kingdom, on others</td><td class="rate">1/10% + postage (min SR 10, max SR 100)</td></tr>
+        <tr><td class="item">2(ii)(b) Documentary collection, payable outside Kingdom</td><td class="rate">SR 1 per thousand + postage (min SR 25, max SR 250)</td></tr>
+        <tr><td class="item">3 Remittances — draft/mail transfer, in‑Kingdom</td><td class="rate">SR 5 up to SR 10,000; SR 10 over SR 10,000</td></tr>
+        <tr><td class="item">3 Remittances — cable/telex, in‑Kingdom</td><td class="rate">SR 10 up to SR 10,000; SR 20 + actual cable cost over</td></tr>
+        <tr><td class="item">3 Remittances — outside Kingdom</td><td class="rate">SR 1 per thousand (min SR 10, max SR 50) + actual cable/telex</td></tr>
+        <tr><td class="item">4(i) Sale of travellers cheques / personal L/Cs</td><td class="rate">1%</td></tr>
+        <tr><td class="item">4(ii)–4(iv) Purchase of TCs, incoming drafts, negotiation of personal L/C drafts</td><td class="rate">No charge</td></tr>
+        <tr><td class="item">5 Unpaid collection items returned</td><td class="rate">SR 10 per item flat (foreign); no charge (local)</td></tr>
+        <tr><td class="item">6(a) Current account below SR 1,000 average balance</td><td class="rate">SR 15 per half‑year</td></tr>
+        <tr><td class="item">6(d) Lost cheque book</td><td class="rate">SR 10</td></tr>
+        <tr><td class="item">6(e) Standing instructions</td><td class="rate">SR 5 per payment</td></tr>
+        <tr><td class="item">8(a) FX selling rate above SAMA rate</td><td class="rate">1/8% first USD 1m; 1/16% on excess</td></tr>
+      </table>
+    </div>
 
-        <a class="link-stub" href="mailto:abdulrahmanfin@outlook.com">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
-        </span>
-        <span class="label">
-          <small>Email</small>
-          Send me a message
-        </span>
-        <span class="go">→</span>
-      </a>
+    <div class="ref-card">
+      <h3>General note</h3>
+      <table class="ref">
+        <tr><td>The published tariff is a <b>maximum</b> — banks are permitted to charge their customers less than the scheduled rate, but not more.</td></tr>
+      </table>
+    </div>
+  </section>
+</main>
 
-      <a class="link-stub" href="https://wa.me/966508498788" target="_blank" rel="noopener noreferrer">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.48 1.34 5L2 22l5.2-1.36c1.46.8 3.1 1.22 4.84 1.22 5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2zm0 18.2c-1.52 0-3-.4-4.3-1.16l-.31-.18-3.09.8.83-3-.2-.32a8.17 8.17 0 0 1-1.26-4.38c0-4.53 3.68-8.2 8.23-8.2 4.55 0 8.24 3.67 8.24 8.2 0 4.53-3.69 8.24-8.24 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.7-.8-.23-.08-.4-.12-.56.13-.17.24-.65.8-.8.97-.15.16-.3.18-.55.06-.25-.12-1.06-.39-2.02-1.24-.75-.66-1.25-1.48-1.4-1.73-.15-.24-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.24.25-.4.08-.16.04-.31-.02-.43-.06-.13-.56-1.35-.77-1.85-.2-.48-.4-.42-.56-.43h-.48c-.16 0-.43.06-.65.31-.23.24-.86.84-.86 2.05 0 1.21.88 2.37 1 2.53.12.16 1.72 2.63 4.17 3.68.58.25 1.04.4 1.4.51.59.19 1.12.16 1.55.1.47-.07 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
-        </span>
-        <span class="label">
-          <small>WhatsApp</small>
-          Chat with me directly
-        </span>
-        <span class="go">→</span>
-      </a>
+<footer class="foot">
+  Sources: SAMA Circular M/A/1/291 (19‑9‑1399H) — original bank services tariff; SAMA Circular 4422/BC/60 (20‑3‑1403H) — standardized fee collection method for letters of guarantee. Built for internal treasury use at TPMC — verify against current facility agreements, as banks may apply updated tariffs since these circulars.
+</footer>
 
-      <a class="link-stub" href="cv.html">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/><path d="M9 9h1"/></svg>
-        </span>
-        <span class="label">
-          <small>CV</small>
-          View my resume
-        </span>
-        <span class="go">→</span>
-      </a>
+<script>
+// ---------- helpers ----------
+const fmt = n => (isFinite(n)?n:0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+function el(id){return document.getElementById(id);}
+function line(container,k,v,cls){
+  const d=document.createElement('div');
+  d.className='rline'+(cls?(' '+cls):'');
+  d.innerHTML=`<span class="k">${k}</span><span class="v">${v}</span>`;
+  container.appendChild(d);
+}
+function varianceBox(container, expected, bankCharged){
+  container.innerHTML='';
+  if(bankCharged===''||bankCharged===null||isNaN(bankCharged)){
+    const d=document.createElement('div');
+    d.className='variance-box neutral';
+    d.textContent='Enter a bank‑charged amount to compare against the SAMA‑tariff expected commission.';
+    container.appendChild(d);
+    return;
+  }
+  const diff = bankCharged - expected;
+  const pct = expected!==0 ? (diff/expected*100) : 0;
+  const d=document.createElement('div');
+  if(Math.abs(diff) < 0.01){
+    d.className='variance-box ok';
+    d.textContent='Bank‑charged amount matches the calculated commission.';
+  } else {
+    d.className='variance-box bad';
+    d.textContent = `Variance of SAR ${fmt(Math.abs(diff))} (${diff>0?'+':''}${pct.toFixed(3)}%) versus the SAMA‑tariff expected amount — worth a manual review against the facility pricing.`;
+  }
+  container.appendChild(d);
+}
 
-      <a class="link-stub" href="certificates.html">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M8.5 13.5 7 22l5-3 5 3-1.5-8.5"/></svg>
-        </span>
-        <span class="label">
-          <small>Certificates</small>
-          View my credentials
-        </span>
-        <span class="go">→</span>
-      </a>
+// tiered opening-commission engine per Item 1(a)
+function tieredCommission(amount, months){
+  const tier1 = Math.min(amount,400000)*0.0025;          // 1/4% on first 400,000
+  const tier2 = Math.max(amount-400000,0)*0.00125;       // 1/8% on excess
+  const extraMonths = Math.max(Math.ceil(months-3),0);   // 1/16% per month (part thereof) after 3 months
+  const tier3 = amount * extraMonths * 0.000625;
+  return {tier1,tier2,tier3,extraMonths,subtotal:tier1+tier2+tier3};
+}
 
-      <a class="link-stub" href="viewer.html?file=Resources/References.pdf&name=References">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 11h6"/></svg>
-        </span>
-        <span class="label">
-          <small>References</small>
-          View recommendations
-        </span>
-        <span class="go">→</span>
-      </a>
-    </nav>
-  </main>
+// ---------- tabs ----------
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    el('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
 
+// ---------- LC panel ----------
+let lcTypeVal='new';
+document.querySelectorAll('#lcType button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#lcType button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    lcTypeVal=b.dataset.v;
+    updateLcVisibility();
+    calcLC();
+  });
+});
+function updateLcVisibility(){
+  el('lcAmountBlock').style.display = (lcTypeVal==='amend'||lcTypeVal==='advise') ? 'none':'block';
+  el('extensionBlock').style.display = (lcTypeVal==='extension'||lcTypeVal==='incext') ? 'block':'none';
+  el('amendBlock').style.display = (lcTypeVal==='amend') ? 'block':'none';
+  el('adviseBlock').style.display = (lcTypeVal==='advise') ? 'block':'none';
+  el('lcAmountLbl').textContent = lcTypeVal==='increase' ? 'Increase Amount (SAR)' : 'L/C Amount (SAR)';
+}
+
+function calcLC(){
+  const linesBox = el('lcLines');
+  linesBox.innerHTML='';
+  const vat = parseFloat(el('lcVat').value)||0;
+  const min = parseFloat(el('lcMin').value)||0;
+  const advise = parseFloat(el('lcAdvise').value)||0;
+  const courier = parseFloat(el('lcCourier').value)||0;
+  let subtotal = 0;
+
+  if(lcTypeVal==='advise'){
+    subtotal = 20 + advise + courier;
+    line(linesBox,'Advising Fee — Item 1(c)', fmt(20));
+    if(advise) line(linesBox,'Additional Advising Fee', fmt(advise));
+    if(courier) line(linesBox,'Cable / Courier', fmt(courier));
+  } else if(lcTypeVal==='amend'){
+    const base = parseFloat(el('amendBase').value)||0;
+    const cable = parseFloat(el('amendCable').value)||0;
+    subtotal = base + cable;
+    line(linesBox,'Amendment Fee — Item 1(e)(2)', fmt(base));
+    line(linesBox,'Telex / Cable / Mail', fmt(cable));
+  } else {
+    const amount = parseFloat(el('lcAmount').value)||0;
+    const months = parseFloat(el('lcMonths').value)||0;
+
+    if(lcTypeVal==='new' || lcTypeVal==='increase'){
+      const t = tieredCommission(amount, months);
+      line(linesBox,'Tier 1 (first SAR 400,000 / 3mo)', fmt(t.tier1));
+      line(linesBox,'Tier 2 (excess / 3mo)', fmt(t.tier2));
+      line(linesBox,`Tier 3 (${t.extraMonths} month(s) beyond 3)`, fmt(t.tier3));
+      let openingSubtotal = t.subtotal;
+      if(min>0 && openingSubtotal<min){
+        line(linesBox,'Minimum Opening Commission applied', fmt(min));
+        openingSubtotal = min;
+      }
+      line(linesBox,'Opening Commission Subtotal', fmt(openingSubtotal), 'total');
+      subtotal += openingSubtotal;
+    }
+
+    if(lcTypeVal==='extension' || lcTypeVal==='incext'){
+      const extMonths = parseFloat(el('extMonths').value)||0;
+      // extension charged on the full LC amount for the additional period, per Circ. BC/60
+      const et = tieredCommission(amount, extMonths<=3?3.0001:extMonths); // ensures tier3 triggers correctly for pure extension length
+      // For an extension standing alone (not stacked on original 3mo block), charge 1/16%/month on full amount
+      const extCommission = amount * Math.max(Math.ceil(extMonths),0) * 0.000625;
+      line(linesBox,`Extension: ${Math.ceil(extMonths)} month(s) × 1/16% on SAR ${fmt(amount)}`, fmt(extCommission));
+      subtotal += extCommission;
+    }
+
+    if(advise){ line(linesBox,'Advising Fee', fmt(advise)); subtotal+=advise; }
+    if(courier){ line(linesBox,'Cable / Courier', fmt(courier)); subtotal+=courier; }
+  }
+
+  const vatAmt = subtotal * (vat/100);
+  line(linesBox,'Subtotal (before VAT)', fmt(subtotal));
+  line(linesBox,`VAT (${vat}%)`, fmt(vatAmt));
+  line(linesBox,'Grand Total', fmt(subtotal+vatAmt), 'total grand');
+
+  el('lcTotal').textContent = fmt(subtotal+vatAmt);
+
+  const bankChargedRaw = el('lcBankCharged').value;
+  const bankCharged = bankChargedRaw===''? '' : parseFloat(bankChargedRaw);
+  if(bankCharged!==''){ line(linesBox,'Bank‑Charged (entered)', fmt(bankCharged)); }
+  varianceBox(el('lcVarianceBox'), subtotal+vatAmt, bankCharged);
+}
+['lcAmount','lcMonths','extMonths','amendBase','amendCable','lcMin','lcAdvise','lcCourier','lcVat','lcBankCharged']
+  .forEach(id=>el(id).addEventListener('input',calcLC));
+
+// ---------- LG panel ----------
+let lgTypeVal='new';
+document.querySelectorAll('#lgType button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#lgType button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    lgTypeVal=b.dataset.v;
+    calcLG();
+  });
+});
+
+function calcLG(){
+  const linesBox = el('lgLines');
+  linesBox.innerHTML='';
+  const amount = parseFloat(el('lgAmount').value)||0;
+  const period = parseFloat(el('lgDays').value)||0;
+  const unit = el('lgUnit').value;
+  const vat = parseFloat(el('lgVat').value)||0;
+
+  const annualTier1 = Math.min(amount,10000000)*0.0025;
+  const annualTier2 = Math.max(amount-10000000,0)*0.00125;
+  const annualFee = annualTier1+annualTier2;
+
+  let fraction;
+  if(unit==='days'){ fraction = period/365; }
+  else { fraction = Math.ceil(period)/12; }
+
+  let commission = annualFee * fraction;
+
+  line(linesBox,'Annual rate — first SAR 10,000,000 @ ¼%', fmt(annualTier1));
+  line(linesBox,'Annual rate — excess @ ⅛%', fmt(annualTier2));
+  line(linesBox,`Pro‑rated for ${unit==='days'? period+' days (Act/365)': Math.ceil(period)+' month(s)'}`, fmt(commission));
+
+  if(el('lgMinFlag').checked && commission < 25){
+    line(linesBox,'Minimum guarantee fee applied (Circ. BC/60 §2)', fmt(25));
+    commission = 25;
+  }
+  if(el('lgBlFlag').checked){
+    line(linesBox,'Missing Bill of Lading indemnity', fmt(20));
+    commission += 20;
+  }
+  if(lgTypeVal==='extension'){
+    line(linesBox,'Basis', 'Extension charged on same annual rate as original period');
+  }
+
+  const vatAmt = commission * (vat/100);
+  line(linesBox,'Subtotal (before VAT)', fmt(commission));
+  line(linesBox,`VAT (${vat}%)`, fmt(vatAmt));
+  line(linesBox,'Grand Total', fmt(commission+vatAmt), 'total grand');
+
+  el('lgTotal').textContent = fmt(commission+vatAmt);
+
+  const bankChargedRaw = el('lgBankCharged').value;
+  const bankCharged = bankChargedRaw===''? '' : parseFloat(bankChargedRaw);
+  if(bankCharged!==''){ line(linesBox,'Bank‑Charged (entered)', fmt(bankCharged)); }
+  varianceBox(el('lgVarianceBox'), commission+vatAmt, bankCharged);
+}
+['lgAmount','lgDays','lgUnit','lgVat','lgBankCharged','lgMinFlag','lgBlFlag']
+  .forEach(id=>el(id).addEventListener('input',calcLG));
+
+// ---------- init ----------
+updateLcVisibility();
+calcLC();
+calcLG();
+</script>
 </body>
 </html>
