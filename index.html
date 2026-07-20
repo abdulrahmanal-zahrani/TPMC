@@ -81,7 +81,7 @@
   }
   .seal-badge span{
     font-family:'IBM Plex Mono',monospace;
-    font-size:9px;
+    font-size:10px;
     line-height:1.5;
     letter-spacing:.06em;
     padding:0 10px;
@@ -245,18 +245,21 @@
   .variance-box.bad{background:var(--rust-soft);color:#6E2C1B;border:1px solid #E4C3B6;}
   .variance-box.neutral{background:#F1EEE3;color:var(--muted);border:1px solid var(--line);}
 
-  .clause-tag{
-    display:inline-block;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10px;
-    color:var(--navy);
-    background:#E9F0F8;
-    border:1px solid #C9DAEE;
-    padding:2px 6px;
-    border-radius:2px;
-    margin-left:6px;
-    vertical-align:middle;
+  .print-btn{
+    width:100%;
+    margin-top:20px;
+    padding:12px;
+    background-color:var(--navy);
+    color:#ffffff;
+    border:none;
+    border-radius:var(--radius);
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+    font-family:'Inter', sans-serif;
+    transition:background 0.2s;
   }
+  .print-btn:hover{background-color:var(--navy-deep);}
 
   /* ===== Reference table ===== */
   .ref-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:24px 26px;margin-bottom:20px;}
@@ -273,6 +276,35 @@
   table.ref td.item{font-weight:600;}
 
   footer.foot{max-width:1180px;margin:0 auto;padding:0 28px 50px;color:var(--muted);font-size:11.5px;line-height:1.6;}
+
+  /* ===== PRINT STYLES FOR REPORTS ===== */
+  @media print {
+    body { background: #fff; color: #000; }
+    .tabs, .seg, footer.foot, .print-btn, .disclaimer, header.top::before { display: none !important; }
+    header.top { background: #fff; color: #000; border-bottom: 2px solid #000; padding: 0 0 20px 0; }
+    header.top h1, header.top p { color: #000; }
+    .eyebrow { color: #555; }
+    .seal-badge { border-color: #000; color: #000; }
+    .seal-badge::before { border-color: #000; }
+    main { padding: 20px 0; max-width: 100%; }
+    .grid { display: block; }
+    .card { border: none; padding: 0; margin-bottom: 30px; box-shadow: none; }
+    .card h2 { color: #000; border-bottom: 1px solid #000; margin-bottom: 10px; }
+    .results-total { background: #f9f9f9; color: #000; border: 1px solid #ddd; }
+    .results-total .lbl { color: #555; }
+    .rline { border-bottom: 1px dotted #ccc; }
+    .panel:not(.active) { display: none !important; }
+    .field input, .field select { 
+      border: none; 
+      background: none; 
+      padding: 0; 
+      font-weight: bold; 
+      color: #000; 
+      appearance: none; 
+      -webkit-appearance: none;
+    }
+    .checkline input[type="checkbox"] { border: 1px solid #000; }
+  }
 </style>
 </head>
 <body>
@@ -282,9 +314,9 @@
     <div>
       <div class="eyebrow">TPMC Treasury — Internal Calculation Tool</div>
       <h1>L/C &amp; L/G Commission Calculator</h1>
-      <p>Computes documentary credit and guarantee commissions against the SAMA Schedule of Bank Charges (Circular M/A/1/291, 19‑9‑1399H) and its amending circular on guarantee fees (Circular 4422/BC/60, 20‑3‑1403H).</p>
+      <p>Computes documentary credit and guarantee commissions based on the SAMA Fees Guide for Financial Institutions' Services.</p>
     </div>
-    <div class="seal-badge"><span>SAMA · TARIFF<br>M/A/1/291 · 1399H<br>BC/60 · 1403H</span></div>
+    <div class="seal-badge"><span>SAMA · FEES<br>GUIDE · 2025</span></div>
   </div>
 </header>
 
@@ -321,14 +353,14 @@
           <div class="field-row">
             <div class="field">
               <label id="lcAmountLbl">L/C Amount <span class="hint">SAR</span></label>
-              <input type="number" id="lcAmount" value="8000000" step="1000">
+              <input type="number" id="lcAmount" value="0" step="1000">
             </div>
             <div class="field">
               <label>Validity <span class="hint">months</span></label>
-              <input type="number" id="lcMonths" value="12" step="1">
+              <input type="number" id="lcMonths" value="0" step="1">
             </div>
           </div>
-          <small class="note" id="lcAmountNote">Item 1(a): ¼% on the first SR 400,000 for 3 months (or part), ⅛% on the excess for 3 months (or part), 1/16% per month (or part) beyond 3 months. <span class="clause-tag">Item 1(a)</span></small>
+          <small class="note" id="lcAmountNote">Standard basis: ¼% on the first SR 400,000 for 3 months (or part), ⅛% on the excess for 3 months (or part), 1/16% per month (or part) beyond 3 months.</small>
         </div>
 
         <div id="extensionBlock" style="display:none;">
@@ -336,9 +368,9 @@
           <div class="subhead">Extension period</div>
           <div class="field">
             <label>Extension Length <span class="hint">months (part‑month counts as full month)</span></label>
-            <input type="number" id="extMonths" value="3" step="1">
+            <input type="number" id="extMonths" value="0" step="1">
           </div>
-          <small class="note">SAMA Circular BC/60 (1403H) requires the extension to be charged on the same basis as the original guarantee/credit period for the remaining validity, not a separate discounted rate. <span class="clause-tag">Circ. BC/60</span></small>
+          <small class="note">The extension is charged on the same basis as the original guarantee/credit period for the remaining validity, not a separate discounted rate.</small>
         </div>
 
         <div id="amendBlock" style="display:none;">
@@ -347,19 +379,19 @@
           <div class="field-row">
             <div class="field">
               <label>Base Amendment Fee <span class="hint">SAR</span></label>
-              <input type="number" id="amendBase" value="25">
+              <input type="number" id="amendBase" value="0">
             </div>
             <div class="field">
               <label>Telex / Cable / Mail Charges <span class="hint">SAR, actual</span></label>
-              <input type="number" id="amendCable" value="20">
+              <input type="number" id="amendCable" value="0">
             </div>
           </div>
-          <small class="note">Item 1(e)(2): SR 25 flat + actual telex/cable/mail cost — applies to amendments that do not involve an increase in amount (e.g. tenor wording, beneficiary details). <span class="clause-tag">Item 1(e)(2)</span></small>
+          <small class="note">Flat fee + actual telex/cable/mail cost — applies to amendments that do not involve an increase in amount (e.g. tenor wording, beneficiary details).</small>
         </div>
 
         <div id="adviseBlock" style="display:none;">
           <hr class="div">
-          <small class="note">Item 1(c): Advising an L/C carries a flat fee of SR 20 — no percentage commission applies. <span class="clause-tag">Item 1(c)</span></small>
+          <small class="note">Advising an L/C carries a flat fee — no percentage commission applies.</small>
         </div>
 
         <hr class="div">
@@ -382,7 +414,7 @@
         <div class="field-row">
           <div class="field">
             <label>VAT <span class="hint">%, applies to all L/C commissions</span></label>
-            <input type="number" id="lcVat" value="15" step="0.5">
+            <input type="number" id="lcVat" value="0" step="0.5">
           </div>
           <div class="field">
             <label>Bank‑Charged Amount <span class="hint">SAR, for comparison — optional</span></label>
@@ -399,6 +431,7 @@
         </div>
         <div id="lcLines"></div>
         <div id="lcVarianceBox"></div>
+        <button class="print-btn" onclick="window.print()">Generate Report (PDF/Print)</button>
       </div>
     </div>
   </section>
@@ -420,11 +453,11 @@
         <div class="field-row">
           <div class="field">
             <label>Guarantee Amount <span class="hint">SAR</span></label>
-            <input type="number" id="lgAmount" value="2000000" step="1000">
+            <input type="number" id="lgAmount" value="0" step="1000">
           </div>
           <div class="field">
             <label>Validity Period</label>
-            <input type="number" id="lgDays" value="365" step="1">
+            <input type="number" id="lgDays" value="0" step="1">
           </div>
         </div>
         <div class="field">
@@ -434,24 +467,24 @@
             <option value="months">Months (1/12 per month, part = full month)</option>
           </select>
         </div>
-        <small class="note">Item 7: ¼% p.a. on the first SR 10,000,000, ⅛% p.a. on the excess. Circular BC/60 (1403H) requires fees on guarantees to be charged on the <b>actual</b> validity term, pro‑rated from the annual rate — same method applies to extensions. <span class="clause-tag">Item 7 · Circ. BC/60</span></small>
+        <small class="note">Standard basis: ¼% p.a. on the first SR 10,000,000, ⅛% p.a. on the excess. Fees on guarantees are to be charged on the <b>actual</b> validity term, pro‑rated from the annual rate — same method applies to extensions.</small>
 
         <hr class="div">
         <div class="checkline">
           <input type="checkbox" id="lgMinFlag">
-          <label>Apply SR 25 minimum fee (small‑amount guarantees) <span class="clause-tag">Circ. BC/60 §2</span></label>
+          <label>Apply minimum fee (small‑amount guarantees)</label>
         </div>
         <div class="checkline">
           <input type="checkbox" id="lgBlFlag">
-          <label>Add missing Bill of Lading indemnity fee — SR 20 flat <span class="clause-tag">Item 7</span></label>
+          <label>Add missing Bill of Lading indemnity fee — flat</label>
         </div>
-        <small class="note">Note: the circular explicitly bars charging separate mail/postal expenses on guarantees, and bars splitting guarantees into government / non‑government pricing tiers. <span class="clause-tag">Circ. BC/60 §3–4</span></small>
+        <small class="note">Note: charging separate mail/postal expenses on guarantees, and splitting guarantees into government / non‑government pricing tiers may be restricted by the guide.</small>
 
         <hr class="div">
         <div class="field-row">
           <div class="field">
             <label>VAT <span class="hint">%</span></label>
-            <input type="number" id="lgVat" value="15" step="0.5">
+            <input type="number" id="lgVat" value="0" step="0.5">
           </div>
           <div class="field">
             <label>Bank‑Charged Amount <span class="hint">SAR, optional</span></label>
@@ -468,6 +501,7 @@
         </div>
         <div id="lgLines"></div>
         <div id="lgVarianceBox"></div>
+        <button class="print-btn" onclick="window.print()">Generate Report (PDF/Print)</button>
       </div>
     </div>
   </section>
@@ -476,7 +510,7 @@
   <section class="panel" id="panel-ref">
     <div class="ref-card">
       <h3>1 · Documentary L/C (Import Credits)</h3>
-      <div class="src">SAMA Schedule of Charges, Circular M/A/1/291 (19‑9‑1399H / 12‑8‑1979)</div>
+      <div class="src">SAMA Fees Guide for Financial Institutions' Services</div>
       <table class="ref">
         <tr><th>Item</th><th>Charge</th></tr>
         <tr><td class="item">(a) Opening / issuing</td><td class="rate">¼% first SR 400,000 /3mo + ⅛% excess /3mo + 1/16% per month after 3mo</td></tr>
@@ -492,7 +526,7 @@
 
     <div class="ref-card">
       <h3>7 · Commission on Guarantees</h3>
-      <div class="src">Item 7, as clarified by Circular 4422/BC/60 (20‑3‑1403H / 4‑1‑1983)</div>
+      <div class="src">SAMA Fees Guide for Financial Institutions' Services</div>
       <table class="ref">
         <tr><th>Item</th><th>Charge</th></tr>
         <tr><td class="item">First SR 10,000,000</td><td class="rate">¼% per annum</td></tr>
@@ -506,7 +540,7 @@
 
     <div class="ref-card">
       <h3>2–6, 8 · Other Treasury‑Relevant Items</h3>
-      <div class="src">Selected from the same schedule — for reference during account &amp; payment reviews</div>
+      <div class="src">Selected from the schedule — for reference during account &amp; payment reviews</div>
       <table class="ref">
         <tr><th>Item</th><th>Charge</th></tr>
         <tr><td class="item">2(i)(b) Documentary collection, payable in Kingdom, on others</td><td class="rate">1/10% + postage (min SR 10, max SR 100)</td></tr>
@@ -534,7 +568,7 @@
 </main>
 
 <footer class="foot">
-  Sources: SAMA Circular M/A/1/291 (19‑9‑1399H) — original bank services tariff; SAMA Circular 4422/BC/60 (20‑3‑1403H) — standardized fee collection method for letters of guarantee. Built for internal treasury use at TPMC — verify against current facility agreements, as banks may apply updated tariffs since these circulars.
+  Sources: SAMA Fees Guide for Financial Institutions' Services. Built for internal treasury use at TPMC — verify against current facility agreements, as banks may apply updated tariffs.
 </footer>
 
 <script>
@@ -552,7 +586,7 @@ function varianceBox(container, expected, bankCharged){
   if(bankCharged===''||bankCharged===null||isNaN(bankCharged)){
     const d=document.createElement('div');
     d.className='variance-box neutral';
-    d.textContent='Enter a bank‑charged amount to compare against the SAMA‑tariff expected commission.';
+    d.textContent='Enter a bank‑charged amount to compare against the expected commission.';
     container.appendChild(d);
     return;
   }
@@ -564,12 +598,12 @@ function varianceBox(container, expected, bankCharged){
     d.textContent='Bank‑charged amount matches the calculated commission.';
   } else {
     d.className='variance-box bad';
-    d.textContent = `Variance of SAR ${fmt(Math.abs(diff))} (${diff>0?'+':''}${pct.toFixed(3)}%) versus the SAMA‑tariff expected amount — worth a manual review against the facility pricing.`;
+    d.textContent = `Variance of SAR ${fmt(Math.abs(diff))} (${diff>0?'+':''}${pct.toFixed(3)}%) versus the expected amount — worth a manual review against the facility pricing.`;
   }
   container.appendChild(d);
 }
 
-// tiered opening-commission engine per Item 1(a)
+// tiered opening-commission engine
 function tieredCommission(amount, months){
   const tier1 = Math.min(amount,400000)*0.0025;          // 1/4% on first 400,000
   const tier2 = Math.max(amount-400000,0)*0.00125;       // 1/8% on excess
@@ -618,14 +652,14 @@ function calcLC(){
 
   if(lcTypeVal==='advise'){
     subtotal = 20 + advise + courier;
-    line(linesBox,'Advising Fee — Item 1(c)', fmt(20));
+    line(linesBox,'Advising Fee', fmt(20));
     if(advise) line(linesBox,'Additional Advising Fee', fmt(advise));
     if(courier) line(linesBox,'Cable / Courier', fmt(courier));
   } else if(lcTypeVal==='amend'){
     const base = parseFloat(el('amendBase').value)||0;
     const cable = parseFloat(el('amendCable').value)||0;
     subtotal = base + cable;
-    line(linesBox,'Amendment Fee — Item 1(e)(2)', fmt(base));
+    line(linesBox,'Amendment Fee', fmt(base));
     line(linesBox,'Telex / Cable / Mail', fmt(cable));
   } else {
     const amount = parseFloat(el('lcAmount').value)||0;
@@ -647,8 +681,6 @@ function calcLC(){
 
     if(lcTypeVal==='extension' || lcTypeVal==='incext'){
       const extMonths = parseFloat(el('extMonths').value)||0;
-      // extension charged on the full LC amount for the additional period, per Circ. BC/60
-      const et = tieredCommission(amount, extMonths<=3?3.0001:extMonths); // ensures tier3 triggers correctly for pure extension length
       // For an extension standing alone (not stacked on original 3mo block), charge 1/16%/month on full amount
       const extCommission = amount * Math.max(Math.ceil(extMonths),0) * 0.000625;
       line(linesBox,`Extension: ${Math.ceil(extMonths)} month(s) × 1/16% on SAR ${fmt(amount)}`, fmt(extCommission));
@@ -708,7 +740,7 @@ function calcLG(){
   line(linesBox,`Pro‑rated for ${unit==='days'? period+' days (Act/365)': Math.ceil(period)+' month(s)'}`, fmt(commission));
 
   if(el('lgMinFlag').checked && commission < 25){
-    line(linesBox,'Minimum guarantee fee applied (Circ. BC/60 §2)', fmt(25));
+    line(linesBox,'Minimum guarantee fee applied', fmt(25));
     commission = 25;
   }
   if(el('lgBlFlag').checked){
